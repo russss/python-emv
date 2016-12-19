@@ -1,5 +1,6 @@
 # coding=utf-8
 from __future__ import division, absolute_import, print_function, unicode_literals
+from ..util import format_bytes
 import six
 
 
@@ -68,9 +69,8 @@ class CAPDU(object):
         return obj
 
     def __repr__(self):
-        data = ' '.join(['%02x' % i for i in self.data])
         return '<Command[%s] P1: %02x, P2: %02x, data: %s, Le: %02x>' % (
-            self.name, self.p1, self.p2, data.upper(), self.le or 0)
+            self.name, self.p1, self.p2, format_bytes(self.data), self.le or 0)
 
 
 class SelectCommand(CAPDU):

@@ -1,6 +1,8 @@
 # coding=utf-8
 from __future__ import division, absolute_import, print_function, unicode_literals
+import logging
 from .protocol.response import RAPDU
+from .util import format_bytes
 
 
 class TransmissionProtocol(object):
@@ -10,7 +12,16 @@ class TransmissionProtocol(object):
         See also Annex A for examples.
     '''
     def __init__(self, connection):
+        self.log = logging.getLogger(__name__)
         self.connection = connection
+        self.connection.connect()
+        self.log.info("Connected to reader")
+
+    def transmit(self, tx_data):
+        self.log.debug("Tx: %s", format_bytes(tx_data))
+        data, sw1, sw2 = self.connection.transmit(tx_data)
+        self.log.debug("Rx: %s, SW1: %02x, SW2: %02x", format_bytes(data), sw1, sw2)
+        return data, sw1, sw2
 
     def exchange(self, capdu):
         ''' Send a command to the card and return the response.
@@ -18,16 +29,17 @@ class TransmissionProtocol(object):
             Only currently supports T0 transport.
         '''
         send_data = capdu.marshal()
-        data = self.connection.transmit(send_data)
-        assert len(data) > 1
+        data, sw1, sw2 = self.transmit(send_data)
 
-        if data[-2] == 0x6C:
+        if sw1 == 0x6C:
             # ICC asks to reduce data size requested
-            send_data[4] = data[-1]
-            data = self.connection.transmit(send_data)
+            send_data[4] = sw2
+            data, sw1, sw2 = self.transmit(send_data)
 
-        while data[-2] == 0x61:
+        while sw1 == 0x61:
             # ICC has continuation data
-            data = data[:-2] + self.connection.transmit([0x00, 0xC0, 0x00, 0x00, data[:-1]])
+            d, sw1, sw2 = self.transmit([0x00, 0xC0, 0x00, 0x00, sw2])
+            data = data[:-2] + d
 
-        return RAPDU.unmarshal(data)
+        res = RAPDU.unmarshal(data + [sw1, sw2])
+        return res
