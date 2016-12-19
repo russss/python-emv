@@ -22,6 +22,8 @@ class RAPDU(object):
             obj = WarningResponse()
         elif sw1 in (0x69, 0x6A):
             obj = ErrorResponse()
+        else:
+            assert False
         obj.sw1 = sw1
         obj.sw2 = sw2
         obj.data = data[:-2]
