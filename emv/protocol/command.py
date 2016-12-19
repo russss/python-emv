@@ -24,7 +24,8 @@ class CAPDU(object):
         'SelectCommand': [0x00, 0xA4],
         'VerifyCommand': [0x00, 0x20],
         'ReadCommand': [0x00, 0xB2],
-        'GenerateApplicationCryptogramCommand': [0x80, 0xAE]
+        'GenerateApplicationCryptogramCommand': [0x80, 0xAE],
+        'GetProcessingOptions': [0x80, 0xA8]
     }
 
     def marshal(self):
@@ -161,5 +162,15 @@ class GenerateApplicationCryptogramCommand(CAPDU):
 
         self.data = data
 
+        self.p2 = 0x00
+        self.le = 0x00
+
+
+class GetProcessingOptions(CAPDU):
+    ''' Defined in: EMV 4.3 Book 3 section 6.5.8 '''
+    name = 'Get Processing Opts'
+
+    def __init__(self):
+        self.p1 = 0x00
         self.p2 = 0x00
         self.le = 0x00

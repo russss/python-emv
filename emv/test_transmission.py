@@ -8,12 +8,17 @@ from .transmission import TransmissionProtocol
 
 
 class MockConnection(object):
+    T0_protocol = 1
+
     def __init__(self, responses):
         self.responses = responses
         self.requests = []
 
     def connect(self):
         pass
+
+    def getProtocol(self):
+        return self.T0_protocol
 
     def transmit(self, request):
         self.requests.append(request)

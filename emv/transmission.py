@@ -6,7 +6,7 @@ from .util import format_bytes
 
 
 class TransmissionProtocol(object):
-    ''' Transport layer.
+    ''' Transport layer. Only currently supports T0 transport.
 
         Defined in: EMV 4.3 Book 1 section 9
         See also Annex A for examples.
@@ -15,6 +15,7 @@ class TransmissionProtocol(object):
         self.log = logging.getLogger(__name__)
         self.connection = connection
         self.connection.connect()
+        assert connection.getProtocol() == connection.T0_protocol
         self.log.info("Connected to reader")
 
     def transmit(self, tx_data):
@@ -25,8 +26,6 @@ class TransmissionProtocol(object):
 
     def exchange(self, capdu):
         ''' Send a command to the card and return the response.
-
-            Only currently supports T0 transport.
         '''
         send_data = capdu.marshal()
         data, sw1, sw2 = self.transmit(send_data)

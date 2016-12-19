@@ -1,5 +1,6 @@
 # coding=utf-8
 from __future__ import division, absolute_import, print_function, unicode_literals
+from .tlv import TLV
 
 
 class RAPDU(object):
@@ -26,7 +27,10 @@ class RAPDU(object):
             assert False
         obj.sw1 = sw1
         obj.sw2 = sw2
-        obj.data = data[:-2]
+        if len(data) > 2:
+            obj.data = TLV.unmarshal(data[:-2])
+        else:
+            obj.data = None
 
         return obj
 
@@ -35,9 +39,8 @@ class RAPDU(object):
 
     def __repr__(self):
         res = '<%s: "%s"' % (self.__class__.__name__, self.get_status())
-        if len(self.data) > 0:
-            data = ' '.join(['%02x' % i for i in self.data])
-            res += ', data: ' + data
+        if self.data:
+            res += ', data: ' + str(self.data)
         return res + '>'
 
 
