@@ -1,72 +1,12 @@
 # coding=utf-8
 from __future__ import division, absolute_import, print_function, unicode_literals
 from functools import total_ordering
+from .data_elements import ELEMENT_TABLE, Parse
 from ..util import format_bytes
 
-# EMV 4.3 Book 3 Annex A
-DATA_ELEMENTS = {
-    0x42: 'Issuer Identification Number',
-    0x4F: 'Application Dedicated File (ADF) Name',
-    0x50: 'Application Label',
-    0x57: 'Track 2 Equivalent Data',
-    0x5A: 'Application Primary Account Number (PAN)',
-    (0x5F, 0x20): 'Cardholder Name',
-    (0x5F, 0x24): 'Application Expiration Date',
-    (0x5F, 0x25): 'Application Effective Date',
-    (0x5F, 0x28): 'Issuer Country Code',
-    (0x5F, 0x2D): 'Language Preference',
-    (0x5F, 0x2A): 'Transaction Currency Code',
-    (0x5F, 0x30): 'Service Code',
-    (0x5F, 0x34): 'Application Primary Account Number (PAN) Sequence Number',
-    0x61: 'Application Template',
-    0x6F: 'FCI Template',
-    0x70: 'Read Record Response Template',
-    0x73: 'Directory Discretionary Template',
-    0x77: 'Response Template Format 2',
-    0x80: 'Response Template Format 1',
-    0x8A: 'Authorisation Response Code',
-    0x8C: 'Card Risk Management Data Object List 1 (CDOL1)',
-    0x8D: 'Card Risk Management Data Object List 2 (CDOL2)',
-    0x8E: 'Cardholder Verification Method (CVM) List',
-    0x8F: 'Certification Authority Public Key Index',
-    0x88: 'Short File Identifier',
-    0x84: 'DF Name',
-    0x87: 'Application Priority Indicator',
-    0x95: 'Terminal Verification Results',
-    0x97: 'Transaction Certificate Data Object List (TDOL)',
-    0x9A: 'Transaction Date',
-    0x9B: 'Transaction Status Information',
-    0x9C: 'Transaction Type',
-    0x9D: 'DDF Name',
-    0xA5: 'FCI Proprietary Template',
-    (0xBF, 0x0C): 'FCI Issuer Discretionary Data',
-    (0x9F, 0x02): 'Amount, Authorised',
-    (0x9F, 0x03): 'Amount, Other (Numeric)',
-    (0x9F, 0x04): 'Amount, Other (Binary)',
-    (0x9F, 0x05): 'Application Discretionary Data',
-    (0x9F, 0x06): 'Application Identifier (AID) - terminal',
-    (0x9F, 0x07): 'Application Usage Control',
-    (0x9F, 0x08): 'Application Version Number',
-    (0x9F, 0x09): 'Application Version Number',
-    (0x9F, 0x0B): 'Cardholder Name Extended',
-    (0x9F, 0x10): 'Issuer Application Data',
-    (0x9F, 0x11): 'Issuer Code Table Index',
-    (0x9F, 0x12): 'Application Preferred Name',
-    (0x9F, 0x13): 'Last Online Application Transaction Counter (ATC) Register',
-    (0x9F, 0x17): 'PIN Try Counter',
-    (0x9F, 0x1A): 'Terminal Country Code',
-    (0x9F, 0x21): 'Transaction Time',
-    (0x9F, 0x26): 'Application Cryptogram',
-    (0x9F, 0x27): 'Cryptogram Information Data',
-    (0x9F, 0x36): 'Application Transaction Counter',
-    (0x9F, 0x37): 'Unpredictable Number',
-    (0x9F, 0x38): 'PDOL',
-    (0x9F, 0x45): 'Data Authentication Code',
-    (0x9F, 0x4E): 'Merchant Name and Location'
-}
-
-ASCII_ELEMENTS = [0x50, (0x9F, 0x0B)]
-DOL_ELEMENTS = [0x8C, 0x8D, 0x97, (0x9F, 0x38)]
+DATA_ELEMENTS = dict((tag, name) for tag, name, _, _ in ELEMENT_TABLE)
+ASCII_ELEMENTS = [tag for tag, _, parse, _ in ELEMENT_TABLE if parse == Parse.ASCII]
+DOL_ELEMENTS = [tag for tag, _, parse, _ in ELEMENT_TABLE if parse == Parse.DOL]
 
 
 def is_two_byte(val):
@@ -89,6 +29,8 @@ def read_tag(data):
     ''' Read a variable-length tag from a list of bytes, starting at the
         first byte. Returns the tag, plus the number of bytes read from
         the list.
+
+        EMV 4.3 Book 3 Annex B1
     '''
     i = 0
     tag = [data[i]]
@@ -151,6 +93,12 @@ class Tag(object):
             return '(%s) %s' % (val, self.name)
         else:
             return val
+
+
+# Set element shortnames as static attributes on the Tag object.
+for tag, _, _, shortname in ELEMENT_TABLE:
+    if shortname is not None:
+        setattr(Tag, shortname, tag)
 
 
 def render_element(tag, value):

@@ -1,7 +1,8 @@
 # coding=utf-8
 from __future__ import division, absolute_import, print_function, unicode_literals
-from . import TransmissionProtocol
+from .transmission import TransmissionProtocol
 from .protocol.structures import TLV
+from .protocol.data import Tag
 from .protocol.command import (SelectCommand, ReadCommand, GetDataCommand,
                                GetProcessingOptions, VerifyCommand)
 
@@ -12,7 +13,7 @@ class Card(object):
 
     def list_applications(self):
         res = self.tp.exchange(SelectCommand('1PAY.SYS.DDF01'))
-        sfi = res.data[0x6F][0xA5][0x88][0]
+        sfi = res.data[Tag.FCI][Tag.FCI_PROP][Tag.SFI][0]
         res = self.tp.exchange(ReadCommand(1, sfi))
         return res
 
@@ -35,12 +36,12 @@ class Card(object):
 
     def get_processing_options(self):
         res = self.tp.exchange(GetProcessingOptions())
-        if 0x80 in res.data:
+        if Tag.RMTF1 in res.data:
             # Response template format 1
-            return {'AIP': res.data[0x80][:2], 'AFL': res.data[0x80][2:]}
-        elif 0x77 in res.data:
+            return {'AIP': res.data[Tag.RMTF1][:2], 'AFL': res.data[Tag.RMTF1][2:]}
+        elif Tag.RMTF2 in res.data:
             # Response template format 2
-            return {'AIP': res.data[0x77][0x82], 'AFL': res.data[0x77][0x94]}
+            return {'AIP': res.data[Tag.RMTF2][0x82], 'AFL': res.data[Tag.RMTF2][0x94]}
 
     def get_application_data(self, afl):
         assert len(afl) % 4 == 0
@@ -52,7 +53,7 @@ class Card(object):
             # dar = afl[i + 3]
             for i in range(start_rec, end_rec + 1):
                 res = self.tp.exchange(ReadCommand(start_rec, sfi))
-                data.update(res.data[0x70])
+                data.update(res.data[Tag.RECORD])
         return data
 
     def verify_pin(self, pin):

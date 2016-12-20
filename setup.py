@@ -7,5 +7,6 @@ setup(name='EMV',
       description='EMV Smartcard Protocol Library',
       author='Russ Garrett',
       author_email='russ@garrett.co.uk',
-      packages=[b'emv', b'emv.protocol']
+      packages=[b'emv', b'emv.protocol'],
+      install_requires=['enum']
       )
