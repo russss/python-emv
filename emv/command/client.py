@@ -12,7 +12,7 @@ from emv.cap import get_arqc_req, get_cap_value
 
 class EMVClient(object):
     def __init__(self):
-        logging.basicConfig(level=logging.INFO)
+        logging.basicConfig(level=logging.WARN)
         parser = argparse.ArgumentParser(description='EMV Smartcard Tool')
         parser.add_argument('-r', type=int, metavar="READER", default=0, dest='reader',
                             help="the reader to use (default 0)")
