@@ -1,6 +1,6 @@
 # coding=utf-8
 from __future__ import division, absolute_import, print_function, unicode_literals
-from .tlv import TLV
+from .structures import TLV
 
 
 class RAPDU(object):

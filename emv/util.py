@@ -1,5 +1,6 @@
 # coding=utf-8
 from __future__ import division, absolute_import, print_function, unicode_literals
+import re
 
 
 def format_bytes(data):
@@ -7,5 +8,5 @@ def format_bytes(data):
 
 
 def unformat_bytes(data):
-    data = data.split(" ")
+    data = re.split('\s+', data)
     return [int(i, 16) for i in data]

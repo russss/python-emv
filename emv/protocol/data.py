@@ -86,6 +86,10 @@ def is_constructed(val):
 
 
 def read_tag(data):
+    ''' Read a variable-length tag from a list of bytes, starting at the
+        first byte. Returns the tag, plus the number of bytes read from
+        the list.
+    '''
     i = 0
     tag = [data[i]]
     if is_two_byte(data[i]):
@@ -102,6 +106,7 @@ def read_tag(data):
 
 @total_ordering
 class Tag(object):
+    ''' Represents a data tag. Provides ordering and pretty rendering.'''
     def __init__(self, value):
         self.value = value
         if len(self.value) == 1:

@@ -1,0 +1,83 @@
+# coding=utf-8
+from __future__ import division, absolute_import, print_function, unicode_literals
+from collections import OrderedDict
+from .data import DOL_ELEMENTS, render_element, read_tag, is_constructed, Tag
+
+
+class TLV(dict):
+    ''' BER-TLV
+        A serialisation format.
+
+        Documented in EMV 4.3 Book 3 Annex B
+    '''
+    @classmethod
+    def unmarshal(cls, data):
+        tlv = cls()
+        i = 0
+        while i < len(data):
+            tag, tag_len = read_tag(data[i:])
+            i += tag_len
+            length = data[i]
+            i += 1
+            value = data[i:i + length]
+
+            if is_constructed(tag[0]):
+                value = TLV.unmarshal(value)
+
+            tag = Tag(tag)
+            if tag in DOL_ELEMENTS:
+                value = DOL.unmarshal(value)
+
+            tlv[tag] = value
+            i += length
+        return tlv
+
+    def __repr__(self):
+        vals = []
+        for key, val in self.items():
+            out = "\n%s: " % key
+            if type(val) in (TLV, DOL):
+                out += str(val)
+            else:
+                out += render_element(key, val)
+            vals.append(out)
+        return "{" + (", ".join(vals)) + "}"
+
+
+class DOL(OrderedDict):
+    ''' Data Object List.
+        This is sent by the card to the terminal to define a structure for
+        future transactions, consisting of an ordered list of data elements and lengths.
+
+        It's essentially a TLV object without the values.
+
+        EMV 4.3 Book 3 section 5.4 '''
+    @classmethod
+    def unmarshal(cls, data):
+        ''' Construct a DOL object from the binary representation (as a list of bytes) '''
+        dol = cls()
+        i = 0
+        while i < len(data):
+            tag, tag_len = read_tag(data[i:])
+            i += tag_len
+            length = data[i]
+            i += 1
+            dol[Tag(tag)] = length
+        return dol
+
+    def size(self):
+        ''' Total size of the resulting structure in bytes. '''
+        return sum(self.values())
+
+    def parse(self, data):
+        ''' Parse an input stream of bytes and return a TLV object. '''
+        if self.size() != len(data):
+            raise Exception("Incorrect input size (expecting %s bytes)" % self.size())
+
+        tlv = TLV()
+        i = 0
+        for tag, length in self.items():
+            tlv[tag] = data[i:i + length]
+            i += length
+
+        return tlv
