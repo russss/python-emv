@@ -47,4 +47,3 @@ class TestTransmission(TestCase):
         tp = TransmissionProtocol(conn)
         res = tp.exchange(SelectCommand([0xA0, 0x00, 0x00, 0x00, 0x03, 0x80, 0x02]))
         self.assertIs(type(res), SuccessResponse)
-        self.assertEqual(res.data, r_data)

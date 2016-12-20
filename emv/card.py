@@ -1,8 +1,9 @@
 # coding=utf-8
 from __future__ import division, absolute_import, print_function, unicode_literals
-from emv import TransmissionProtocol
-from emv.protocol.command import (SelectCommand, ReadCommand, GetDataCommand,
-                                  GetProcessingOptions, VerifyCommand)
+from . import TransmissionProtocol
+from .protocol.structures import TLV
+from .protocol.command import (SelectCommand, ReadCommand, GetDataCommand,
+                               GetProcessingOptions, VerifyCommand)
 
 
 class Card(object):
@@ -43,7 +44,7 @@ class Card(object):
 
     def get_application_data(self, afl):
         assert len(afl) % 4 == 0
-        data = []
+        data = TLV()
         for i in range(0, len(afl), 4):
             sfi = afl[i] >> 3
             start_rec = afl[i + 1]
@@ -51,7 +52,7 @@ class Card(object):
             # dar = afl[i + 3]
             for i in range(start_rec, end_rec + 1):
                 res = self.tp.exchange(ReadCommand(start_rec, sfi))
-                data.append(res.data)
+                data.update(res.data[0x70])
         return data
 
     def verify_pin(self, pin):
