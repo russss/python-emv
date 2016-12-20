@@ -7,7 +7,12 @@ from .protocol.command import (SelectCommand, ReadCommand, GetDataCommand,
                                GetProcessingOptions, VerifyCommand)
 
 
+def mkint16(data):
+    return (data[0] << 8) + data[1]
+
+
 class Card(object):
+    ''' High-level card manipulation API '''
     def __init__(self, connection):
         self.tp = TransmissionProtocol(connection)
 
@@ -27,10 +32,10 @@ class Card(object):
         data['pin_retries'] = res.data[(0x9F, 0x17)][0]
 
         res = self.tp.exchange(GetDataCommand(GetDataCommand.ATC))
-        data['atc'] = res.data[(0x9F, 0x36)]
+        data['atc'] = mkint16(res.data[(0x9F, 0x36)])
 
         res = self.tp.exchange(GetDataCommand(GetDataCommand.LAST_ONLINE_ATC))
-        data['last_online_atc'] = res.data[(0x9F, 0x13)]
+        data['last_online_atc'] = mkint16(res.data[(0x9F, 0x13)])
 
         return data
 

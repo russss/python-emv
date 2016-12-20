@@ -17,7 +17,7 @@ class Parse(Enum):
 ELEMENT_TABLE = [
     (0x42, 'Issuer Identification Number', Parse.BYTES, 'IIN'),
     (0x4F, 'Application Dedicated File (ADF) Name', Parse.BYTES, 'ADF_NAME'),
-    (0x50, 'Application Label', Parse.ASCII, None),
+    (0x50, 'Application Label', Parse.ASCII, 'APP_LABEL'),
     (0x57, 'Track 2 Equivalent Data', Parse.BYTES, 'TRACK2'),
     (0x5A, 'Application Primary Account Number (PAN)', Parse.BYTES, 'PAN'),
     ((0x5F, 0x20), 'Cardholder Name', Parse.ASCII, None),
