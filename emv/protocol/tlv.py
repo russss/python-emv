@@ -1,34 +1,9 @@
 # coding=utf-8
 from __future__ import division, absolute_import, print_function, unicode_literals
+from functools import total_ordering
 from ..util import format_bytes
+from .data import DATA_ELEMENTS, ASCII_ELEMENTS
 # EMV 4.3 Book 3 Annex B
-
-NAMES = {
-    0x50: 'Application Label',
-    0x6F: 'FCI Template',
-    0x73: 'Directory Discretionary Template',
-    0x77: 'Response Format 2',
-    0x80: 'Response Format 1',
-    0x84: 'DF Name',
-    0x87: 'Application Priority Indicator',
-    0x9A: 'Transaction Date',
-    0x9D: 'DDF Name',
-    0xA5: 'FCI Proprietary Template',
-    (0x5F, 0x2D): 'Language Preference',
-    (0x5F, 0x2A): 'Transaction Currency Code',
-    (0xBF, 0x0C): 'FCI Issuer Discretionary Data',
-    (0x9F, 0x02): 'Amount, Authorised',
-    (0x9F, 0x10): 'Issuer Application Data',
-    (0x9F, 0x11): 'Issuer Code Table Index',
-    (0x9F, 0x12): 'Application Preferred Name',
-    (0x9F, 0x21): 'Transaction Time',
-    (0x9F, 0x26): 'Application Cryptogram',
-    (0x9F, 0x27): 'Cryptogram Information Data',
-    (0x9F, 0x36): 'Application Transaction Counter',
-    (0x9F, 0x38): 'PDOL',
-    (0x9F, 0x45): 'Data Authentication Code',
-    (0x9F, 0x4E): 'Merchant Name and Location',
-}
 
 
 def is_two_byte(val):
@@ -43,26 +18,53 @@ def is_continuation(val):
 
 
 def is_constructed(val):
+    ''' Check if a tag represents a "constructed" value, i.e. another TLV '''
     return val & 0b00100000 == 0b00100000
 
 
+@total_ordering
 class Tag(object):
     def __init__(self, value):
         self.value = value
         if len(self.value) == 1:
             self.value = self.value[0]
 
+    @property
+    def name(self):
+        if type(self.value) == list:
+            return DATA_ELEMENTS.get(tuple(self.value))
+        else:
+            return DATA_ELEMENTS.get(self.value)
+
+    def __hash__(self):
+        if type(self.value) == list:
+            return hash(tuple(self.value))
+        return hash(self.value)
+
+    def __eq__(self, other):
+        if type(other) == Tag:
+            return (self.value == other.value)
+        if type(other) in (tuple, list):
+            return tuple(other) == tuple(self.value)
+
+        return self.name == other or self.value == other
+
+    def __lt__(self, other):
+        if type(other) == Tag:
+            return self.value < other.value
+
+        return self.value < other
+
     def __repr__(self):
         if type(self.value) == list:
-            if tuple(self.value) in NAMES:
-                return NAMES[tuple(self.value)]
-            else:
-                return format_bytes(self.value)
+            val = format_bytes(self.value)
         else:
-            if self.value in NAMES:
-                return NAMES[self.value]
-            else:
-                return '%02X' % self.value
+            val = '%02X' % self.value
+
+        if self.name:
+            return '(%s) %s' % (val, self.name)
+        else:
+            return val
 
 
 class TLV(dict):
@@ -79,7 +81,6 @@ class TLV(dict):
                 while is_continuation(data[i]):
                     tag += [data[i]]
                     i += 1
-                i += 1
             else:
                 i += 1
             length = data[i]
@@ -97,6 +98,8 @@ class TLV(dict):
             out = "%s: " % key
             if type(val) == TLV:
                 out += "\n\t" + str(val) + "\n"
+            elif key in ASCII_ELEMENTS:
+                out += '"' + ''.join(map(chr, val)) + '"'
             else:
                 out += format_bytes(val)
             vals.append(out)

@@ -1,0 +1,45 @@
+# coding=utf-8
+from __future__ import division, absolute_import, print_function, unicode_literals
+
+# EMV 4.3 Book 3 Annex A
+DATA_ELEMENTS = {
+    0x42: 'Issuer Identification Number',
+    0x4F: 'Application Dedicated File (ADF) Name',
+    0x50: 'Application Label',
+    0x57: 'Track 2 Equivalent Data',
+    0x5A: 'Application Primary Account Number (PAN)',
+    (0x5F, 0x20): 'Cardholder Name',
+    (0x5F, 0x24): 'Application Expiration Date',
+    (0x5F, 0x25): 'Application Effective Date',
+    (0x5F, 0x28): 'Issuer Country Code',
+    (0x5F, 0x2D): 'Language Preference',
+    (0x5F, 0x2A): 'Transaction Currency Code',
+    0x61: 'Application Template',
+    0x6F: 'FCI Template',
+    0x70: 'Read Record Response Template',
+    0x73: 'Directory Discretionary Template',
+    0x77: 'Response Template Format 2',
+    0x80: 'Response Template Format 1',
+    0x88: 'Short File Identifier',
+    0x84: 'DF Name',
+    0x87: 'Application Priority Indicator',
+    0x9A: 'Transaction Date',
+    0x9D: 'DDF Name',
+    0xA5: 'FCI Proprietary Template',
+    (0xBF, 0x0C): 'FCI Issuer Discretionary Data',
+    (0x9F, 0x02): 'Amount, Authorised',
+    (0x9F, 0x10): 'Issuer Application Data',
+    (0x9F, 0x11): 'Issuer Code Table Index',
+    (0x9F, 0x12): 'Application Preferred Name',
+    (0x9F, 0x13): 'Last Online Application Transaction Counter (ATC) Register',
+    (0x9F, 0x17): 'PIN Try Counter',
+    (0x9F, 0x21): 'Transaction Time',
+    (0x9F, 0x26): 'Application Cryptogram',
+    (0x9F, 0x27): 'Cryptogram Information Data',
+    (0x9F, 0x36): 'Application Transaction Counter',
+    (0x9F, 0x38): 'PDOL',
+    (0x9F, 0x45): 'Data Authentication Code',
+    (0x9F, 0x4E): 'Merchant Name and Location',
+}
+
+ASCII_ELEMENTS = [0x50]

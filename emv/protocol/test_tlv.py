@@ -13,5 +13,11 @@ class TestTLV(TestCase):
 
         data = unformat_bytes('77 1E 9F 27 01 80 9F 36 02 00 05 9F 26 08 6E CF 93 47 C1 A9 24 71 9F 10 07 06 0B 0A 03 A4 90 00')
         tlv = TLV.unmarshal(data)
+
+
+    def test_tlv_2(self):
+        data = unformat_bytes('9F 17 01 03')
+        tlv = TLV.unmarshal(data)
         print(tlv)
+        self.assertEqual(tlv[(0x9F, 0x17)][0], 3)
 

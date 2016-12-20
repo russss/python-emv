@@ -21,16 +21,17 @@ class RAPDU(object):
             obj = SuccessResponse()
         elif sw1 in (0x62, 0x63):
             obj = WarningResponse()
-        elif sw1 in (0x69, 0x6A):
-            obj = ErrorResponse()
         else:
-            assert False
+            obj = ErrorResponse()
         obj.sw1 = sw1
         obj.sw2 = sw2
         if len(data) > 2:
             obj.data = TLV.unmarshal(data[:-2])
         else:
             obj.data = None
+
+        if type(obj) == ErrorResponse:
+            raise obj
 
         return obj
 
@@ -42,6 +43,9 @@ class RAPDU(object):
         if self.data:
             res += ', data: ' + str(self.data)
         return res + '>'
+
+    def __str__(self):
+        return repr(self)
 
 
 class SuccessResponse(RAPDU):
@@ -59,7 +63,7 @@ class WarningResponse(RAPDU):
             return "State of non-volatile memory changed; counter is %i" % (self.sw2 & ~0xC0)
 
 
-class ErrorResponse(RAPDU):
+class ErrorResponse(RAPDU, Exception):
     ERRORS = {
         (0x69, 0x83): 'Command not allowed; authentication method blocked',
         (0x69, 0x84): 'Command not allowed; referenced data invalidated',
@@ -71,4 +75,7 @@ class ErrorResponse(RAPDU):
     }
 
     def get_status(self):
-        return self.ERRORS.get((self.sw1, self.sw2))
+        if (self.sw1, self.sw2) in self.ERRORS:
+            return self.ERRORS.get((self.sw1, self.sw2))
+        else:
+            return "Unknown error: %02x %02x" % (self.sw1, self.sw2)

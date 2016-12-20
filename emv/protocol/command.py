@@ -24,6 +24,7 @@ class CAPDU(object):
         'SelectCommand': [0x00, 0xA4],
         'VerifyCommand': [0x00, 0x20],
         'ReadCommand': [0x00, 0xB2],
+        'GetDataCommand': [0x80, 0xCA],
         'GenerateApplicationCryptogramCommand': [0x80, 0xAE],
         'GetProcessingOptions': [0x80, 0xA8]
     }
@@ -107,16 +108,37 @@ class ReadCommand(CAPDU):
 
     P2_RECORD_NUMBER = 0x04  # P1 is a record number
 
-    def __init__(self, record_number=None, sfi=None):
-        assert record_number is not None or sfi is not None
+    def __init__(self, record_number, sfi=None):
+        assert type(sfi) == int
+        assert type(record_number) == int
 
-        if record_number is not None:
-            assert type(record_number) == int
-            self.p1 = record_number
-            self.p2 = self.P2_RECORD_NUMBER
+        self.p1 = record_number
+        if sfi is not None:
+            self.p2 = (sfi << 3) + self.P2_RECORD_NUMBER
         else:
-            assert False  # TODO: read by SFI
+            self.p2 = self.P2_RECORD_NUMBER
 
+        self.data = None
+        self.le = 0x00
+
+
+class GetDataCommand(CAPDU):
+    ''' Get miscellaneous data
+
+        Defined in: EMV 4.3 Book 3 section 6.5.7
+    '''
+    name = 'Get Data'
+
+    ATC = (0x9F, 0x36)
+    LAST_ONLINE_ATC = (0x9F, 0x13)
+    PIN_TRY_COUNT = (0x9F, 0x17)
+    LOG_FORMAT = (0x9F, 0x4F)
+
+    def __init__(self, obj):
+        assert type(obj) == tuple
+        self.p1 = obj[0]
+        self.p2 = obj[1]
+        self.data = None
         self.le = 0x00
 
 
