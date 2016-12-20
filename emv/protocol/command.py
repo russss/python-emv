@@ -192,7 +192,11 @@ class GetProcessingOptions(CAPDU):
     ''' Defined in: EMV 4.3 Book 3 section 6.5.8 '''
     name = 'Get Processing Opts'
 
-    def __init__(self):
+    def __init__(self, pdol=None):
         self.p1 = 0x00
         self.p2 = 0x00
+        if pdol is None:
+            self.data = [0x83, 0x00]
+        else:
+            self.data = pdol
         self.le = 0x00

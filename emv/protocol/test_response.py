@@ -12,5 +12,5 @@ class TestRAPDU(TestCase):
         pdu = RAPDU.unmarshal([0x63, 0xC2])
         self.assertIs(type(pdu), WarningResponse)
 
-        pdu = RAPDU.unmarshal([0x6A, 0x81])
-        self.assertIs(type(pdu), ErrorResponse)
+        with self.assertRaises(ErrorResponse):
+           RAPDU.unmarshal([0x6A, 0x81])
