@@ -92,8 +92,11 @@ class DOL(OrderedDict):
         output = []
         for tag, length in self.items():
             value = data.get(tag, [0x0] * length)
-            if len(value) != length:
-                raise Exception("Incorrect data length (%s) for tag %s" % (len(value), tag))
+            if len(value) < length:
+                # If the length is shorter than required, left-pad it.
+                value = [0x0] * (length - len(value)) + value
+            elif len(value) > length:
+                raise Exception("Data for tag %s is too long" % tag)
             output += value
 
         assert len(output) == self.size()

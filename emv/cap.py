@@ -7,7 +7,6 @@
     UK-wide standard. I make no guarantees for non-UK cards.
 '''
 from __future__ import division, absolute_import, print_function, unicode_literals
-import struct
 from .protocol.data import Tag
 from .protocol.command import GenerateApplicationCryptogramCommand
 from .protocol.structures import DOL
@@ -21,6 +20,16 @@ GAC_RESPONSE_DOL = DOL([
     (Tag((0x9F, 0x10)), 7),  # Issuer Application Data
     (Tag(0x90), 0)
 ])
+
+
+def hex_int(val):
+    ''' Convert an integer into a decimal-encoded hex integer, which the EMV
+        spec seems awfully keen on.
+    '''
+    s = str(val)
+    if len(s) % 2 != 0:
+        s = '0' + s
+    return [int(s[i:i + 2], 16) for i in range(0, len(s), 2)]
 
 
 def get_arqc_req(app_data, value=None, account=None):
@@ -37,11 +46,15 @@ def get_arqc_req(app_data, value=None, account=None):
     }
 
     if account is not None:
-        # The "unpredictable value" is set to the account number
-        # TODO: validate this against barclays-pinsentry's output
-        data[Tag((0x9F, 0x37))] = list(struct.pack(">I", int(account)))
+        # If an account number (or challenge) is provided, it goes in the
+        # "unpredictable number" field.
+        data[Tag((0x9F, 0x37))] = hex_int(account)
 
-    # TODO: value
+    if value is not None:
+        # If a monetary value is provided, it goes in the "Amount, Authorised"
+        # field.
+        data[Tag((0x9F, 0x02))] = hex_int(int(value * 100))
+
     return GenerateApplicationCryptogramCommand(GenerateApplicationCryptogramCommand.ARQC,
                                                 cdol1.serialise(data))
 
