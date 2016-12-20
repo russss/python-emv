@@ -1,10 +1,13 @@
 # coding=utf-8
-''' Functions to implement EMV Card Authentication Program, AKA Pinsentry.
+''' EMV Chip Authentication Program, a.k.a DPA, a.k.a Pinsentry.
 
-    There is no public documentation for the EMV CAP standard. The code in this
+    There is no public specification for the EMV CAP "standard". The code in this
     module is based on a number of other hacky projects. It works for Barclays
     cards in the UK. It will probably work for other UK cards as there is a
-    UK-wide standard. I make no guarantees for non-UK cards.
+    UK-wide standard.
+
+    I make no guarantees for non-UK cards as I'm aware that certain banks have
+    made their own "customisations" to EMV CAP.
 '''
 from __future__ import division, absolute_import, print_function, unicode_literals
 from .protocol.data import Tag
