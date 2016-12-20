@@ -40,14 +40,14 @@ def get_cap_value(response):
     '''
     assert 0x80 in response.data or 0x77 in response.data
 
-    if 0x80 in response.data:
+    if Tag.RMTF1 in response.data:
         # Response type 1, deserialise it with our static DOL.
-        data = GAC_RESPONSE_DOL.unserialise(response.data[0x80])
-    elif 0x77 in response.data:
+        data = GAC_RESPONSE_DOL.unserialise(response.data[Tag.RMTF1])
+    elif Tag.RMTF2 in response.data:
         # Response type 2, TLV format.
-        data = response.data[0x77]
+        data = response.data[Tag.RMTF2]
 
-    atc = data[(0x9F, 0x36)]  # Application Transaction Counter
+    atc = data[Tag.ATC]  # Application Transaction Counter
     ac = data[(0x9F, 0x26)]   # Application Cryptogram
 
     result = ((1 << 25) | (atc[1] << 17) | ((ac[5] & 0x01) << 16) | (ac[6] << 8) | ac[7])
