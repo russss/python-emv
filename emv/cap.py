@@ -1,5 +1,11 @@
 # coding=utf-8
-''' Functions to implement EMV Card Authentication Program, AKA Pinsentry. '''
+''' Functions to implement EMV Card Authentication Program, AKA Pinsentry.
+
+    There is no public documentation for the EMV CAP standard. The code in this
+    module is based on a number of other hacky projects. It works for Barclays
+    cards in the UK. It will probably work for other UK cards as there is a
+    UK-wide standard. I make no guarantees for non-UK cards.
+'''
 from __future__ import division, absolute_import, print_function, unicode_literals
 from .protocol.data import Tag
 from .protocol.command import GenerateApplicationCryptogramCommand
