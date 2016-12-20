@@ -7,6 +7,7 @@
     UK-wide standard. I make no guarantees for non-UK cards.
 '''
 from __future__ import division, absolute_import, print_function, unicode_literals
+import struct
 from .protocol.data import Tag
 from .protocol.command import GenerateApplicationCryptogramCommand
 from .protocol.structures import DOL
@@ -22,7 +23,7 @@ GAC_RESPONSE_DOL = DOL([
 ])
 
 
-def get_arqc_req(app_data):
+def get_arqc_req(app_data, value=None, account=None):
     ''' Generate the data to send with the generate application cryptogram request.
         This data is in the format requested by the card in the CDOL1 field of the
         application data.
@@ -35,6 +36,12 @@ def get_arqc_req(app_data):
         Tag(0x95): [0x80, 0x00, 0x00, 0x00, 0x00]   # Terminal Verification Results
     }
 
+    if account is not None:
+        # The "unpredictable value" is set to the account number
+        # TODO: validate this against barclays-pinsentry's output
+        data[Tag((0x9F, 0x37))] = list(struct.pack(">I", int(account)))
+
+    # TODO: value
     return GenerateApplicationCryptogramCommand(GenerateApplicationCryptogramCommand.ARQC,
                                                 cdol1.serialise(data))
 
