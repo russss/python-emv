@@ -1,5 +1,3 @@
-# coding=utf-8
-from __future__ import division, absolute_import, print_function, unicode_literals
 from setuptools import setup
 
 setup(name='emv',
@@ -8,7 +6,7 @@ setup(name='emv',
       license='MIT',
       author='Russ Garrett',
       author_email='russ@garrett.co.uk',
-      packages=[b'emv', b'emv.protocol'],
+      packages=['emv', 'emv.protocol', 'emv.command'],
       install_requires=['enum', 'argparse'],
-      scripts=[b'bin/emvtool']
+      scripts=['bin/emvtool']
       )
