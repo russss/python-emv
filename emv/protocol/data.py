@@ -110,8 +110,10 @@ class Tag(object):
     def __init__(self, value):
         if type(value) in (list, tuple) and len(value) == 1:
             self.value = value[0]
-        else:
+        elif type(value) == int:
             self.value = value
+        else:
+            self.value = list(value)
 
     @property
     def name(self):

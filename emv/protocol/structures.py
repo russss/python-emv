@@ -10,6 +10,7 @@ class TLV(dict):
 
         Documented in EMV 4.3 Book 3 Annex B
     '''
+
     @classmethod
     def unmarshal(cls, data):
         tlv = cls()
@@ -35,7 +36,7 @@ class TLV(dict):
     def __repr__(self):
         vals = []
         for key, val in self.items():
-            out = "\n%s: " % key
+            out = "\n%s: " % str(key)
             if type(val) in (TLV, DOL):
                 out += str(val)
             else:
@@ -52,6 +53,7 @@ class DOL(OrderedDict):
         It's essentially a TLV object without the values.
 
         EMV 4.3 Book 3 section 5.4 '''
+
     @classmethod
     def unmarshal(cls, data):
         ''' Construct a DOL object from the binary representation (as a list of bytes) '''
@@ -72,7 +74,8 @@ class DOL(OrderedDict):
     def unserialise(self, data):
         ''' Parse an input stream of bytes and return a TLV object. '''
         if self.size() != len(data):
-            raise Exception("Incorrect input size (expecting %s bytes)" % self.size())
+            raise Exception("Incorrect input size (expecting %s bytes, got %s)" % (
+                            self.size(), len(data)))
 
         tlv = TLV()
         i = 0
