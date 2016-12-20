@@ -1,10 +1,12 @@
 # coding=utf-8
 from __future__ import division, absolute_import, print_function, unicode_literals
+import sys
 import logging
 import argparse
 import smartcard
 from emv.card import Card
 from emv.protocol.data import Tag, render_element
+from emv.protocol.response import WarningResponse
 from emv.cap import get_arqc_req, get_cap_value
 
 
@@ -64,6 +66,9 @@ class EMVClient(object):
 
         opts = card.get_processing_options()
         app_data = card.get_application_data(opts['AFL'])
-        card.verify_pin(self.args.pin)
+        res = card.verify_pin(self.args.pin)
+        if type(res) == WarningResponse:
+            print("PIN verification failed!")
+            sys.exit(1)
         resp = card.tp.exchange(get_arqc_req(app_data))
         print(get_cap_value(resp))
