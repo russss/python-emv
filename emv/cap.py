@@ -1,7 +1,8 @@
 # coding=utf-8
-''' EMV-CAP functions. '''
+''' Functions to implement EMV Card Authentication Program, AKA Pinsentry. '''
 from __future__ import division, absolute_import, print_function, unicode_literals
 from .protocol.data import Tag
+from .protocol.command import GenerateApplicationCryptogramCommand
 from .protocol.structures import DOL
 
 # Older cards will respond with an opaque, packed response to the
@@ -15,19 +16,25 @@ GAC_RESPONSE_DOL = DOL([
 ])
 
 
-def get_arqc(app_data):
-    # This is the algorithm that barclays_pinsentry.c uses.
+def get_arqc_req(app_data):
+    ''' Generate the data to send with the generate application cryptogram request.
+        This data is in the format requested by the card in the CDOL1 field of the
+        application data.
+
+        This is the algorithm that barclays_pinsentry.c uses.
+    '''
     cdol1 = app_data[0x8C]
     data = {
         Tag(0x9A): [0x01, 0x01, 0x01],              # Transaction Date
         Tag(0x95): [0x80, 0x00, 0x00, 0x00, 0x00]   # Terminal Verification Results
     }
 
-    return cdol1.serialize(data)
+    return GenerateApplicationCryptogramCommand(GenerateApplicationCryptogramCommand.ARQC,
+                                                cdol1.serialise(data))
 
 
 def get_cap_value(response):
-    ''' Generate a CAP (Pinsentry) value from the ARQC response.
+    ''' Generate a CAP value from the ARQC response.
 
         This algorithm is the one used by barclays-pinsentry.
     '''

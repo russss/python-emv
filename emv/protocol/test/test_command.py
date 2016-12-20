@@ -1,8 +1,8 @@
 from __future__ import division, absolute_import, print_function, unicode_literals
 # coding=utf-8
 from unittest2 import TestCase
-from .command import CAPDU, SelectCommand, GenerateApplicationCryptogramCommand
-from ..util import unformat_bytes
+from emv.protocol.command import CAPDU, SelectCommand, GenerateApplicationCryptogramCommand
+from emv.util import unformat_bytes
 
 
 class TestCAPDU(TestCase):
@@ -15,7 +15,9 @@ class TestCAPDU(TestCase):
         self.assertEqual(len(pdu.data), 0x07)
         self.assertEqual(pdu.le, None)
 
-        pdu = CAPDU.unmarshal(unformat_bytes('80 AE 80 00 1D 00 00 00 00 00 00 00 00 00 00 00 00 00 00 80 00 00 00 00 00 00 01 01 01 00 00 00 00 00'))
+        pdu = CAPDU.unmarshal(
+            unformat_bytes('''80 AE 80 00 1D 00 00 00 00 00 00 00 00 00 00 00 00
+                              00 00 80 00 00 00 00 00 00 01 01 01 00 00 00 00 00'''))
         self.assertIs(type(pdu), GenerateApplicationCryptogramCommand)
         self.assertEqual(pdu.p1, 0x80)
         self.assertEqual(pdu.p2, 0x00)

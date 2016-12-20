@@ -1,10 +1,10 @@
 # coding=utf-8
 from __future__ import division, absolute_import, print_function, unicode_literals
 from unittest2 import TestCase
-from .util import unformat_bytes
-from .protocol.command import SelectCommand
-from .protocol.response import SuccessResponse
-from .transmission import TransmissionProtocol
+from emv.util import unformat_bytes
+from emv.protocol.command import SelectCommand
+from emv.protocol.response import SuccessResponse
+from emv.transmission import TransmissionProtocol
 
 
 class MockConnection(object):
@@ -37,7 +37,8 @@ class TestTransmission(TestCase):
         self.assertIs(type(res), SuccessResponse)
 
     def test_retry(self):
-        r_data = unformat_bytes('6F 1D 84 07 A0 00 00 00 03 80 02 A5 12 50 08 42 41 52 43 4C 41 59 53 87 01 00 5F 2D 02 65 6E')
+        r_data = unformat_bytes('''6F 1D 84 07 A0 00 00 00 03 80 02 A5 12 50 08 42 41
+                                   52 43 4C 41 59 53 87 01 00 5F 2D 02 65 6E''')
         responses = [
             ([], 0x61, 0x1F),
             (r_data, 0x90, 0x00)

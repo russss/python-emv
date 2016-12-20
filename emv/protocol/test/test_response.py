@@ -1,7 +1,7 @@
 # coding=utf-8
 from __future__ import division, absolute_import, print_function, unicode_literals
 from unittest2 import TestCase
-from .response import RAPDU, SuccessResponse, WarningResponse, ErrorResponse
+from emv.protocol.response import RAPDU, SuccessResponse, WarningResponse, ErrorResponse
 
 
 class TestRAPDU(TestCase):
@@ -13,4 +13,4 @@ class TestRAPDU(TestCase):
         self.assertIs(type(pdu), WarningResponse)
 
         with self.assertRaises(ErrorResponse):
-           RAPDU.unmarshal([0x6A, 0x81])
+            RAPDU.unmarshal([0x6A, 0x81])

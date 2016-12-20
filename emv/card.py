@@ -38,7 +38,7 @@ class Card(object):
         if 0x80 in res.data:
             # Response template format 1
             return {'AIP': res.data[0x80][:2], 'AFL': res.data[0x80][2:]}
-        elif 0x77 in res:
+        elif 0x77 in res.data:
             # Response template format 2
             return {'AIP': res.data[0x77][0x82], 'AFL': res.data[0x77][0x94]}
 
