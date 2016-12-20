@@ -2,6 +2,7 @@
 from __future__ import division, absolute_import, print_function, unicode_literals
 from unittest2 import TestCase
 from ..util import unformat_bytes
+from .data import Tag
 from .structures import TLV, DOL
 
 
@@ -48,7 +49,7 @@ class TestDOL(TestCase):
         self.assertEqual(dol[(0x9F, 0x37)], 4)
         self.assertEqual(dol.size(), 29)
 
-    def test_parse(self):
+    def test_serialise(self):
         # Barclays debit CDOL1
         dol_data = unformat_bytes('9F 02 06 9F 03 06 9F 1A 02 95 05 5F 2A 02 9A 03 9C 01 9F 37 04')
         dol = DOL.unmarshal(dol_data)
@@ -57,5 +58,15 @@ class TestDOL(TestCase):
         data = unformat_bytes('''00 00 00 00 00 00 00 00 00 00 00 00 00 00 80 00 00 00 00 00 00
                                  01 01 01 00 00 00 00 00''')
 
-        tlv = dol.parse(data)
+        tlv = dol.unserialise(data)
         self.assertEqual(tlv[0x9A], [1, 1, 1])
+
+        # Re-serialise by round trip
+        self.assertEqual(dol.serialise(tlv), data)
+
+        # Re-serialise with partial data
+        source = {Tag(0x9A): [0x01, 0x01, 0x01],
+                  Tag(0x95): [0x80, 0x00, 0x00, 0x00, 0x00]}
+
+        serialised = dol.serialise(source)
+        self.assertEqual(serialised, data)

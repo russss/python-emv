@@ -69,7 +69,7 @@ class DOL(OrderedDict):
         ''' Total size of the resulting structure in bytes. '''
         return sum(self.values())
 
-    def parse(self, data):
+    def unserialise(self, data):
         ''' Parse an input stream of bytes and return a TLV object. '''
         if self.size() != len(data):
             raise Exception("Incorrect input size (expecting %s bytes)" % self.size())
@@ -81,3 +81,17 @@ class DOL(OrderedDict):
             i += length
 
         return tlv
+
+    def serialise(self, data):
+        ''' Given a dictionary of tag -> value, write this data out
+            according to the DOL. Missing data will be null.
+        '''
+        output = []
+        for tag, length in self.items():
+            value = data.get(tag, [0x0] * length)
+            if len(value) != length:
+                raise Exception("Incorrect data length (%s) for tag %s" % (len(value), tag))
+            output += value
+
+        assert len(output) == self.size()
+        return output

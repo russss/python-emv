@@ -108,9 +108,10 @@ def read_tag(data):
 class Tag(object):
     ''' Represents a data tag. Provides ordering and pretty rendering.'''
     def __init__(self, value):
-        self.value = value
-        if len(self.value) == 1:
-            self.value = self.value[0]
+        if type(value) in (list, tuple) and len(value) == 1:
+            self.value = value[0]
+        else:
+            self.value = value
 
     @property
     def name(self):
