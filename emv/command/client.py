@@ -62,12 +62,24 @@ class EMVClient(object):
 
     def card_info(self):
         card = self.get_reader()
+        print("Testing for existence of MF...")
+        try:
+            print(card.get_mf())
+        except ErrorResponse as e:
+            print("MF not found: %s" % e)
         print("Applications:")
         apps = card.list_applications()
-        print(apps.data)
-        app = apps.data[Tag.RECORD][Tag.APP]
-        print("\nSelecting application %s..." % render_element(Tag.APP_LABEL, app[Tag.APP_LABEL]))
-        print(card.select_application(app[Tag.ADF_NAME]).data)
+
+        if type(apps) != list:
+            apps = [apps]
+
+        print("Available apps: %s" % (", ".join(render_element(Tag.APP_LABEL, app[Tag.APP_LABEL])
+                                                for app in apps)))
+
+        for app in apps:
+            print("\nApplication %s:" % render_element(Tag.APP_LABEL, app[Tag.APP_LABEL]))
+            print(card.select_application(app[Tag.ADF_NAME]).data)
+
         print("\nFetching card data...")
         try:
             for k, v in card.get_metadata().items():
@@ -81,8 +93,12 @@ class EMVClient(object):
             return
         card = self.get_reader()
         apps = card.list_applications()
-        app = apps.data[Tag.RECORD][Tag.APP]
-        card.select_application(app[Tag.ADF_NAME])
+
+        # We're selecting the last app on the card here, which on Barclays
+        # cards seems to always be the Barclays one.
+        #
+        # It would be good to work out what logic to use to
+        card.select_application(apps[-1][Tag.ADF_NAME])
 
         opts = card.get_processing_options()
         app_data = card.get_application_data(opts['AFL'])

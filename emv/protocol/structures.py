@@ -29,7 +29,13 @@ class TLV(dict):
             if tag in DOL_ELEMENTS:
                 value = DOL.unmarshal(value)
 
-            tlv[tag] = value
+            # If we have duplicate tags, make them into a list
+            if tag in tlv:
+                if type(tlv[tag]) is not list:
+                    tlv[tag] = [tlv[tag]]
+                tlv[tag].append(value)
+            else:
+                tlv[tag] = value
             i += length
         return tlv
 
@@ -37,7 +43,8 @@ class TLV(dict):
         vals = []
         for key, val in self.items():
             out = "\n%s: " % str(key)
-            if type(val) in (TLV, DOL):
+            if type(val) in (TLV, DOL) or \
+               type(val) is list and type(val[0]) in (TLV, DOL):
                 out += str(val)
             else:
                 out += render_element(key, val)

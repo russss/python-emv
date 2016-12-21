@@ -82,14 +82,21 @@ class SelectCommand(CAPDU):
     '''
     name = 'Select'
 
-    def __init__(self, file_name):
-        if isinstance(file_name, six.string_types):
-            self.data = [ord(c) for c in file_name]
+    def __init__(self, file_path=None, file_identifier=None, next_occurrence=False):
+        if file_path is not None:
+            if isinstance(file_path, six.string_types):
+                self.data = [ord(c) for c in file_path]
+            else:
+                self.data = file_path
+            self.p1 = 0x04  # Select by path
         else:
-            self.data = file_name
+            self.data = file_identifier
+            self.p1 = 0x00
 
-        self.p1 = 0x04  # Select by name
-        self.p2 = 0x00  # First or only occurrence
+        if next_occurrence:
+            self.p2 = 0x02  # Next occurrence
+        else:
+            self.p2 = 0x00  # First or only occurrence
 
         self.le = 0x00
 
@@ -109,7 +116,7 @@ class ReadCommand(CAPDU):
     P2_RECORD_NUMBER = 0x04  # P1 is a record number
 
     def __init__(self, record_number, sfi=None):
-        assert type(sfi) == int
+        assert type(sfi) == int or sfi is None
         assert type(record_number) == int
 
         self.p1 = record_number

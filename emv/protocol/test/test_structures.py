@@ -26,6 +26,23 @@ class TestTLV(TestCase):
         tlv = TLV.unmarshal(data)
         self.assertEqual(tlv[(0x9F, 0x17)][0], 3)
 
+    def test_duplicate_tags(self):
+        # An ADF entry with a number of records:
+        data = unformat_bytes('''70 4A 61 16 4F 07 A0 00 00 00 29 10 10 50 08 4C 49 4E 4B 20
+                                            41 54 4D 87 01 01
+                                       61 18 4F 07 A0 00 00 00 03 10 10 50 0A 56 49 53 41 20
+                                            44 45 42 49 54 87 01 02
+                                       61 16 4F 07 A0 00 00 00 03 80 02 50 08 42 41 52 43 4C
+                                            41 59 53 87 01 00''')
+        tlv = TLV.unmarshal(data)
+        self.assertIn(Tag.RECORD, tlv)
+        self.assertIn(Tag.APP, tlv[Tag.RECORD])
+
+        # We expect this to be a list of TLV objects
+        self.assertIs(list, type(tlv[Tag.RECORD][Tag.APP]))
+        self.assertEqual(len(tlv[Tag.RECORD][Tag.APP]), 3)
+        print(repr(tlv))
+
     def test_nested_dol(self):
         tlv = TLV.unmarshal(APP_DATA)
         repr(tlv)

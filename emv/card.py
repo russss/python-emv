@@ -16,11 +16,15 @@ class Card(object):
     def __init__(self, connection):
         self.tp = TransmissionProtocol(connection)
 
+    def get_mf(self):
+        ''' Get the master file (MF). '''
+        return self.tp.exchange(SelectCommand(file_identifier=[0x3F, 0x00]))
+
     def list_applications(self):
         res = self.tp.exchange(SelectCommand('1PAY.SYS.DDF01'))
         sfi = res.data[Tag.FCI][Tag.FCI_PROP][Tag.SFI][0]
         res = self.tp.exchange(ReadCommand(1, sfi))
-        return res
+        return res.data[Tag.RECORD][Tag.APP]
 
     def select_application(self, app):
         res = self.tp.exchange(SelectCommand(app))
