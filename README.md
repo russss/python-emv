@@ -30,8 +30,8 @@ card in, and run:
 
 If all goes well, you should see some data about your card.
 
-Command-line tool
------------------
+Command Line
+------------
 
 This library ships with `emvtool` - a simple command-line tool for testing
 and CAP password generation. To fetch some card metadata, run:
@@ -41,3 +41,15 @@ and CAP password generation. To fetch some card metadata, run:
 To generate an EMV CAP one-time passcode:
 
     emvtool -p <PIN> cap
+
+You can also conduct CAP signing and challenge-response:
+
+    emvtool -p <PIN> cap -c <challenge>
+    emvtool -p <PIN> cap -c <accountno> -a <amount>
+
+Legal Stuff
+-----------
+
+`EMV` is a trademark of [EMVCo](http://www.emvco.com/) and is used
+purely for descriptive purposes. This library is not affiliated with
+EMVCo.
