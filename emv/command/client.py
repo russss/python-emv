@@ -27,6 +27,10 @@ class EMVClient(object):
         info.set_defaults(func=self.card_info)
 
         cap = subparsers.add_parser('cap', help="perform EMV CAP authentication")
+        cap.add_argument('-c', type=str, metavar="CHALLENGE", dest='challenge',
+                         help="account number or challenge")
+        cap.add_argument('-a', type=str, metavar="AMOUNT", dest='amount',
+                         help="amount")
         cap.set_defaults(func=self.cap)
 
         self.args = parser.parse_args()
@@ -35,7 +39,11 @@ class EMVClient(object):
         self.args.func()
 
     def get_reader(self):
-        return Card(smartcard.System.readers()[self.args.reader].createConnection())
+        try:
+            return Card(smartcard.System.readers()[self.args.reader].createConnection())
+        except IndexError:
+            print("Reader or card not found")
+            sys.exit(2)
 
     def list_readers(self):
         print("Available card readers:\n")
@@ -70,5 +78,7 @@ class EMVClient(object):
         if type(res) == WarningResponse:
             print("PIN verification failed!")
             sys.exit(1)
-        resp = card.tp.exchange(get_arqc_req(app_data))
+        resp = card.tp.exchange(get_arqc_req(app_data,
+                                challenge=self.args.challenge,
+                                value=self.args.amount))
         print(get_cap_value(resp))

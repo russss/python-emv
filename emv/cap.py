@@ -26,7 +26,7 @@ GAC_RESPONSE_DOL = DOL([
 ])
 
 
-def get_arqc_req(app_data, value=None, account=None):
+def get_arqc_req(app_data, value=None, challenge=None):
     ''' Generate the data to send with the generate application cryptogram request.
         This data is in the format requested by the card in the CDOL1 field of the
         application data.
@@ -39,15 +39,15 @@ def get_arqc_req(app_data, value=None, account=None):
         Tag(0x95): [0x80, 0x00, 0x00, 0x00, 0x00]   # Terminal Verification Results
     }
 
-    if account is not None:
+    if challenge is not None:
         # If an account number (or challenge) is provided, it goes in the
         # "unpredictable number" field.
-        data[Tag((0x9F, 0x37))] = hex_int(account)
+        data[Tag((0x9F, 0x37))] = hex_int(challenge)
 
     if value is not None:
         # If a monetary value is provided, it goes in the "Amount, Authorised"
         # field.
-        data[Tag((0x9F, 0x02))] = hex_int(int(value * 100))
+        data[Tag((0x9F, 0x02))] = hex_int(int(float(value) * 100))
 
     return GenerateApplicationCryptogramCommand(GenerateApplicationCryptogramCommand.ARQC,
                                                 cdol1.serialise(data))
