@@ -84,7 +84,7 @@ ELEMENT_TABLE = [
     ((0x9F, 0x0F), 'Issuer Action Code - Online', Parse.BYTES, None),
     ((0x9F, 0x10), 'Issuer Application Data', Parse.BYTES, None),
     ((0x9F, 0x11), 'Issuer Code Table Index', Parse.BYTES, None),
-    ((0x9F, 0x12), 'Application Preferred Name', Parse.BYTES, None),
+    ((0x9F, 0x12), 'Application Preferred Name', Parse.ASCII, None),
     ((0x9F, 0x13), 'Last Online Application Transaction Counter (ATC) Register', Parse.BYTES, None),
     ((0x9F, 0x14), 'Lower Consecutive Offline Limit', Parse.BYTES, None),
     ((0x9F, 0x15), 'Merchant Category Code', Parse.BYTES, None),
