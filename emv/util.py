@@ -7,8 +7,10 @@ def hex_int(val):
     ''' Convert an integer into a decimal-encoded hex integer as bytes,
         which the EMV spec seems awfully keen on.
 
-        >>> hex_int(123456) == [0x12, 0x34, 0x56]
-        >>> hex_int(65432) == [0x06, 0x54, 0x32]
+        >>> hex_int(123456)
+        [0x12, 0x34, 0x56]
+        >>> hex_int(65432)
+        [0x06, 0x54, 0x32]
     '''
     s = str(val)
     if len(s) % 2 != 0:

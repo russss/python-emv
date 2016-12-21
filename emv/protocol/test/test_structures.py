@@ -34,9 +34,11 @@ class TestTLV(TestCase):
 
 
 class TestDOL(TestCase):
+    # Barclays debit CDOL1
+    dol_data = unformat_bytes('9F 02 06 9F 03 06 9F 1A 02 95 05 5F 2A 02 9A 03 9C 01 9F 37 04')
+
     def test_dol(self):
-        data = unformat_bytes('9F 02 06 9F 03 06 9F 1A 02 95 05 5F 2A 02 9A 03 9C 01 9F 37 04')
-        dol = DOL.unmarshal(data)
+        dol = DOL.unmarshal(self.dol_data)
         self.assertIn(0x9A, dol)
         self.assertEqual(dol[0x9A], 3)
         self.assertIn((0x9F, 0x37), dol)
@@ -44,9 +46,7 @@ class TestDOL(TestCase):
         self.assertEqual(dol.size(), 29)
 
     def test_serialise(self):
-        # Barclays debit CDOL1
-        dol_data = unformat_bytes('9F 02 06 9F 03 06 9F 1A 02 95 05 5F 2A 02 9A 03 9C 01 9F 37 04')
-        dol = DOL.unmarshal(dol_data)
+        dol = DOL.unmarshal(self.dol_data)
 
         # Parameters to GENERATE APPLICATION CRYPTOGRAM from barclays-pinsentry.c:
         data = unformat_bytes('''00 00 00 00 00 00 00 00 00 00 00 00 00 00 80 00 00 00 00 00 00
@@ -64,3 +64,23 @@ class TestDOL(TestCase):
 
         serialised = dol.serialise(source)
         self.assertEqual(serialised, data)
+
+    def test_serialise_long_data(self):
+        dol = DOL.unmarshal(self.dol_data)
+
+        # First tag is too long for the DOL
+        source = {Tag(0x9A): [0x01, 0x01, 0x01, 0x02],
+                  Tag(0x95): [0x80, 0x00, 0x00, 0x00, 0x00]}
+
+        with self.assertRaises(Exception):
+            dol.serialise(source)
+
+    def test_unserialise(self):
+        dol = DOL.unmarshal(self.dol_data)
+
+        # Incorrect length data
+        data = unformat_bytes('''00 00 00 00 00 00 00 00 00 00 00 00 00 00 80 00 00 00 00 00 00
+                                 00 00 00''')
+
+        with self.assertRaises(Exception):
+            dol.unserialise(data)
