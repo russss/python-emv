@@ -33,7 +33,7 @@ setup(name='emv',
       keywords='smartcard emv payment',
 
       packages=['emv', 'emv.protocol', 'emv.command'],
-      install_requires=['enum', 'argparse', 'pyscard'],
+      install_requires=['enum-compat', 'argparse', 'pyscard'],
       entry_points={
           'console_scripts': {
               'emvtool=emv.command.client:run'
