@@ -7,6 +7,6 @@ setup(name='emv',
       author='Russ Garrett',
       author_email='russ@garrett.co.uk',
       packages=['emv', 'emv.protocol', 'emv.command'],
-      install_requires=['enum', 'argparse'],
+      install_requires=['enum', 'argparse', 'pyscard'],
       scripts=['bin/emvtool']
       )
