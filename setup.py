@@ -29,5 +29,9 @@ setup(name='emv',
 
       packages=['emv', 'emv.protocol', 'emv.command'],
       install_requires=['enum', 'argparse', 'pyscard'],
-      scripts=['bin/emvtool']
+      entry_points={
+          'console_scripts': {
+              'emvtool=emv.command.client:run'
+          }
+      }
       )

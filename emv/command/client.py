@@ -10,6 +10,11 @@ from emv.protocol.response import WarningResponse, ErrorResponse
 from emv.cap import get_arqc_req, get_cap_value
 
 
+# Function called by the emvtool shim installed by setuptools
+def run():
+    EMVClient().run()
+
+
 class EMVClient(object):
     def __init__(self):
         logging.basicConfig(level=logging.WARN)
