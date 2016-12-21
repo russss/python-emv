@@ -4,8 +4,13 @@ from os import path
 
 here = path.abspath(path.dirname(__file__))
 
-with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
-    long_description = f.read()
+readme_rst = path.join(here, 'README.rst')
+
+if path.isfile(readme_rst):
+    with open(readme_rst, encoding='utf-8') as f:
+        long_description = f.read()
+else:
+    long_description = ''
 
 version = {}
 with open(path.join(here, 'emv', "__init__.py")) as fp:
