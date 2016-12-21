@@ -6,5 +6,6 @@ script: tox
 addons:
   apt:
     packages:
+      - build-essential
       - swig
       - libpcsclite1
