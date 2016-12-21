@@ -4,7 +4,7 @@ EMV for Python
 [![Build Status](https://travis-ci.org/russss/python-emv.svg?branch=master)](https://travis-ci.org/russss/python-emv)
 
 A Pythonic implementation of the EMV smartcard protocol, which is used
-worldwide for chip-and-PIN paayments. This is intended to be readable,
+worldwide for chip-and-PIN payments. This is intended to be readable,
 tested, and heavily cross-referenced with the appropriate sections of the
 [EMV Specification](http://www.emvco.com/specifications.aspx).
 
