@@ -6,7 +6,7 @@ import argparse
 import smartcard
 from emv.card import Card
 from emv.protocol.data import Tag, render_element
-from emv.protocol.response import WarningResponse
+from emv.protocol.response import WarningResponse, ErrorResponse
 from emv.cap import get_arqc_req, get_cap_value
 
 
@@ -60,8 +60,11 @@ class EMVClient(object):
         print("\nSelecting application %s..." % render_element(Tag.APP_LABEL, app[Tag.APP_LABEL]))
         print(card.select_application(app[Tag.ADF_NAME]).data)
         print("\nFetching card data...")
-        for k, v in card.get_metadata().items():
-            print("%s: %s" % (k, v))
+        try:
+            for k, v in card.get_metadata().items():
+                print("%s: %s" % (k, v))
+        except ErrorResponse as e:
+            print("Unable to fetch card data: %s" % e)
 
     def cap(self):
         if self.args.pin is None:
