@@ -8,4 +8,4 @@ addons:
     packages:
       - build-essential
       - swig
-      - libpcsclite1
+      - libpcsclite-dev
