@@ -18,8 +18,31 @@ def hex_int(val):
     return [int(s[i:i + 2], 16) for i in range(0, len(s), 2)]
 
 
+def from_hex_int(val):
+    ''' Convert hex digits to decimal.
+
+        >>> from_hex_int([0x12, 0x34])
+        1234
+    '''
+    return int(''.join(['%x' % i for i in val]))
+
+
+def from_hex_date(val):
+    return '%02x/%02x/%02x' % (val[0], val[1], val[2])
+
+
+def decode_int(val):
+    result = val[0]
+    for i in val[1:]:
+        result = result << 8
+        result += i
+    return result
+
+
 def format_bytes(data):
-    return ("[" + ' '.join(['%02x' % i for i in data]) + "]").upper()
+    if type(data) == int:
+        return "[%02X]" % data
+    return "[" + ' '.join(['%02X' % i for i in data]) + "]"
 
 
 def unformat_bytes(data):

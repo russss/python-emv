@@ -6,7 +6,12 @@ from enum import Enum
 class Parse(Enum):
     BYTES = 1
     ASCII = 2
-    DOL = 3
+    DOL = 3         # Data Object List
+    DEC = 4         # Decimal encoded in hex
+    DATE = 5        # Date encoded in hex digits as [0xYY 0xMM 0xDD]
+    INT = 6         # Decode bytes as an integer
+    COUNTRY = 7     # Decode bytes as an ISO country code
+    CURRENCY = 8    # ISO currency code
 
 
 # This table is derived from:
@@ -19,15 +24,15 @@ ELEMENT_TABLE = [
     (0x4F, 'Application Dedicated File (ADF) Name', Parse.BYTES, 'ADF_NAME'),
     (0x50, 'Application Label', Parse.ASCII, 'APP_LABEL'),
     (0x57, 'Track 2 Equivalent Data', Parse.BYTES, 'TRACK2'),
-    (0x5A, 'Application Primary Account Number (PAN)', Parse.BYTES, 'PAN'),
+    (0x5A, 'Application Primary Account Number (PAN)', Parse.DEC, 'PAN'),
     ((0x5F, 0x20), 'Cardholder Name', Parse.ASCII, None),
-    ((0x5F, 0x24), 'Application Expiration Date', Parse.BYTES, None),
-    ((0x5F, 0x25), 'Application Effective Date', Parse.BYTES, None),
-    ((0x5F, 0x28), 'Issuer Country Code', Parse.BYTES, None),
-    ((0x5F, 0x2A), 'Transaction Country Code', Parse.BYTES, None),
-    ((0x5F, 0x2D), 'Language Preference', Parse.BYTES, None),
+    ((0x5F, 0x24), 'Application Expiration Date', Parse.DATE, None),
+    ((0x5F, 0x25), 'Application Effective Date', Parse.DATE, None),
+    ((0x5F, 0x28), 'Issuer Country Code', Parse.COUNTRY, None),
+    ((0x5F, 0x2A), 'Transaction Country Code', Parse.COUNTRY, None),
+    ((0x5F, 0x2D), 'Language Preference', Parse.ASCII, None),
     ((0x5F, 0x30), 'Service Code', Parse.BYTES, None),
-    ((0x5F, 0x34), 'Application Primary Account Number (PAN) Sequence Number', Parse.BYTES, 'PAN_SN'),
+    ((0x5F, 0x34), 'Application Primary Account Number (PAN) Sequence Number', Parse.INT, 'PAN_SN'),
     ((0x5F, 0x36), 'Transaction Currency Exponent', Parse.BYTES, None),
     ((0x5F, 0x50), 'Issuer URL', Parse.ASCII, None),
     ((0x5F, 0x53), 'International Bank Account Number (IBAN)', Parse.BYTES, 'IBAN'),
@@ -65,7 +70,7 @@ ELEMENT_TABLE = [
     (0x97, 'Transaction Certificate Data Object List (TDOL)', Parse.DOL, 'TDOL'),
     (0x98, 'Transaction Certificate (TC) Hash Value', Parse.BYTES, None),
     (0x99, 'Transaction Personal Identification Number (PIN) Data', Parse.BYTES, None),
-    (0x9A, 'Transaction Date', Parse.BYTES, None),
+    (0x9A, 'Transaction Date', Parse.DATE, None),
     (0x9B, 'Transaction Status Information', Parse.BYTES, None),
     (0x9C, 'Transaction Type', Parse.BYTES, None),
     (0x9D, 'DDF Name', Parse.BYTES, 'DDF'),
@@ -75,7 +80,7 @@ ELEMENT_TABLE = [
     ((0x9F, 0x04), 'Amount, Other (Binary)', Parse.BYTES, None),
     ((0x9F, 0x05), 'Application Discretionary Data', Parse.BYTES, None),
     ((0x9F, 0x06), 'Application Identifier (AID) - terminal', Parse.BYTES, None),
-    ((0x9F, 0x07), 'Application Usage Control', Parse.BYTES, None),
+    ((0x9F, 0x07), 'Application Usage Control', Parse.BYTES, 'AUC'),
     ((0x9F, 0x08), 'Application Version Number', Parse.BYTES, None),
     ((0x9F, 0x09), 'Application Version Number', Parse.BYTES, None),
     ((0x9F, 0x0B), 'Cardholder Name Extended', Parse.ASCII, None),
@@ -85,13 +90,13 @@ ELEMENT_TABLE = [
     ((0x9F, 0x10), 'Issuer Application Data', Parse.BYTES, None),
     ((0x9F, 0x11), 'Issuer Code Table Index', Parse.BYTES, None),
     ((0x9F, 0x12), 'Application Preferred Name', Parse.ASCII, None),
-    ((0x9F, 0x13), 'Last Online Application Transaction Counter (ATC) Register', Parse.BYTES, None),
+    ((0x9F, 0x13), 'Last Online Application Transaction Counter (ATC) Register', Parse.INT, None),
     ((0x9F, 0x14), 'Lower Consecutive Offline Limit', Parse.BYTES, None),
     ((0x9F, 0x15), 'Merchant Category Code', Parse.BYTES, None),
     ((0x9F, 0x16), 'Merchant Identifier', Parse.BYTES, None),
-    ((0x9F, 0x17), 'PIN Try Counter', Parse.BYTES, None),
+    ((0x9F, 0x17), 'PIN Try Counter', Parse.INT, None),
     ((0x9F, 0x18), 'Issuer Script Identifier', Parse.BYTES, None),
-    ((0x9F, 0x1A), 'Terminal Country Code', Parse.BYTES, None),
+    ((0x9F, 0x1A), 'Terminal Country Code', Parse.COUNTRY, None),
     ((0x9F, 0x1B), 'Terminal Floor Limit', Parse.BYTES, None),
     ((0x9F, 0x1C), 'Terminal Identification', Parse.BYTES, None),
     ((0x9F, 0x1D), 'Terminal Risk Management Data', Parse.BYTES, None),
@@ -110,7 +115,7 @@ ELEMENT_TABLE = [
     ((0x9F, 0x33), 'Terminal Capabilities', Parse.BYTES, None),
     ((0x9F, 0x34), 'Cardholder Verification Method (CVM) Results', Parse.BYTES, None),
     ((0x9F, 0x35), 'Terminal Type', Parse.BYTES, None),
-    ((0x9F, 0x36), 'Application Transaction Counter', Parse.BYTES, 'ATC'),
+    ((0x9F, 0x36), 'Application Transaction Counter', Parse.INT, 'ATC'),
     ((0x9F, 0x37), 'Unpredictable Number', Parse.BYTES, None),
     ((0x9F, 0x38), 'Processing Options Data Object List (PDOL)', Parse.DOL, 'PDOL'),
     ((0x9F, 0x39), 'Point-of-Service (POS) Entry Mode', Parse.BYTES, None),
@@ -120,9 +125,9 @@ ELEMENT_TABLE = [
     ((0x9F, 0x3D), 'Transaction Reference Currency Exponent', Parse.BYTES, None),
     ((0x9F, 0x40), 'Additional Terminal Capabilities', Parse.BYTES, None),
     ((0x9F, 0x41), 'Transaction Sequence Counter', Parse.BYTES, None),
-    ((0x9F, 0x42), 'Application Currency Code', Parse.BYTES, None),
+    ((0x9F, 0x42), 'Application Currency Code', Parse.CURRENCY, None),
     ((0x9F, 0x43), 'Application Reference Currency Exponent', Parse.BYTES, None),
-    ((0x9F, 0x44), 'Application Currency Exponent', Parse.BYTES, None),
+    ((0x9F, 0x44), 'Application Currency Exponent', Parse.INT, None),
     ((0x9F, 0x45), 'Data Authentication Code', Parse.BYTES, None),
     ((0x9F, 0x46), 'ICC Public Key Certificate', Parse.BYTES, None),
     ((0x9F, 0x47), 'ICC Public Key Exponent', Parse.BYTES, None),

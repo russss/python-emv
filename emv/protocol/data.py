@@ -7,10 +7,12 @@
 '''
 from __future__ import division, absolute_import, print_function, unicode_literals
 from functools import total_ordering
+import pycountry
 from .data_elements import ELEMENT_TABLE, Parse
-from ..util import format_bytes
+from ..util import format_bytes, from_hex_int, from_hex_date, decode_int
 
 DATA_ELEMENTS = dict((tag, name) for tag, name, _, _ in ELEMENT_TABLE)
+ELEMENT_RENDERING = dict((tag, parse) for tag, _, parse, _ in ELEMENT_TABLE if parse is not None)
 ASCII_ELEMENTS = [tag for tag, _, parse, _ in ELEMENT_TABLE if parse == Parse.ASCII]
 DOL_ELEMENTS = [tag for tag, _, parse, _ in ELEMENT_TABLE if parse == Parse.DOL]
 
@@ -64,6 +66,13 @@ class Tag(object):
             self.value = list(value)
 
     @property
+    def id(self):
+        if type(self.value) == list:
+            return tuple(self.value)
+        else:
+            return self.value
+
+    @property
     def name(self):
         if type(self.value) == list:
             return DATA_ELEMENTS.get(tuple(self.value))
@@ -108,6 +117,23 @@ for tag, _, _, shortname in ELEMENT_TABLE:
 
 
 def render_element(tag, value):
-    if tag in ASCII_ELEMENTS:
+    if type(tag) == Tag:
+        tag = tag.id
+    if type(value).__name__ in ('TLV', 'DOL'):
+        return repr(value)
+    parse = ELEMENT_RENDERING.get(tag)
+    if parse is None:
+        return format_bytes(value)
+    if parse == Parse.ASCII:
         return '"' + ''.join(map(chr, value)) + '"'
+    if parse == Parse.DEC:
+        return str(from_hex_int(value))
+    if parse == Parse.DATE:
+        return from_hex_date(value)
+    if parse == Parse.INT:
+        return str(decode_int(value))
+    if parse == Parse.COUNTRY:
+        return pycountry.countries.get(numeric=str(from_hex_int(value))).alpha_2
+    if parse == Parse.CURRENCY:
+        return pycountry.currencies.get(numeric=str(from_hex_int(value))).alpha_3
     return format_bytes(value)

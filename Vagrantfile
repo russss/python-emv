@@ -6,7 +6,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.provision "shell", inline: <<-SHELL
     apt-get update
-    apt-get install -y pcscd pcsc-tools python-pyscard python-six
+    apt-get install -y pcscd pcsc-tools python-pyscard python-six python-dev python3-dev
   SHELL
 
   config.vm.provider "virtualbox" do |v|

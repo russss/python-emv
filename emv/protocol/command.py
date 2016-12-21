@@ -123,7 +123,7 @@ class ReadCommand(CAPDU):
         if sfi is not None:
             self.p2 = (sfi << 3) + self.P2_RECORD_NUMBER
         else:
-            self.p2 = self.P2_RECORD_NUMBER
+            self.p2 = 0x04
 
         self.data = None
         self.le = 0x00

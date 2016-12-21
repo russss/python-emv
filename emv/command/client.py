@@ -4,17 +4,32 @@ import sys
 import logging
 import argparse
 import smartcard
+import textwrap
+from terminaltables import SingleTable
 import emv
 from emv.card import Card
 from emv.protocol.data import Tag, render_element
-from emv.protocol.response import WarningResponse, ErrorResponse
-from emv.cap import get_arqc_req, get_cap_value
+from emv.protocol.response import ErrorResponse
+from emv.exc import InvalidPINException
+from emv.util import format_bytes
 
 LOG_LEVELS = {
     'info': logging.INFO,
     'debug': logging.DEBUG,
     'warn': logging.WARN
 }
+
+
+def as_table(tlv, title=None):
+    res = [['Tag', 'Name', 'Value']]
+    for tag, value in tlv.items():
+        res.append([format_bytes(tag.id),
+                    tag.name or '',
+                    '\n'.join(textwrap.wrap(render_element(tag, value), 80))])
+    table = SingleTable(res)
+    if title is not None:
+        table.title = title
+    return table.table
 
 
 # Function called by the emvtool shim installed by setuptools
@@ -76,7 +91,6 @@ class EMVClient(object):
             print(card.get_mf())
         except ErrorResponse as e:
             print("MF not found: %s" % e)
-        print("Applications:")
         apps = card.list_applications()
 
         if type(apps) != list:
@@ -86,13 +100,23 @@ class EMVClient(object):
                                                 for app in apps)))
 
         for app in apps:
-            print("\nApplication %s:" % render_element(Tag.APP_LABEL, app[Tag.APP_LABEL]))
-            print(card.select_application(app[Tag.ADF_NAME]).data)
+            print("\nApplication %s, DF Name: %s" % (
+                render_element(Tag.APP_LABEL, app[Tag.APP_LABEL]),
+                render_element(Tag.DF, app[Tag.ADF_NAME])))
+            data = card.select_application(app[Tag.ADF_NAME]).data
+            print(as_table(data[Tag.FCI][Tag.FCI_PROP], 'FCI Proprietary Data'))
+            for i in range(1, 10):
+                try:
+                    rec = card.read_record(1, sfi=i).data
+                except ErrorResponse as e:
+                    break
+                print(as_table(rec[Tag.RECORD], 'File: %s' % i))
 
         print("\nFetching card data...")
         try:
-            for k, v in card.get_metadata().items():
-                print("%s: %s" % (k, v))
+            tab = SingleTable(card.get_metadata().items())
+            tab.inner_heading_row_border = False
+            print(tab.table)
         except ErrorResponse as e:
             print("Unable to fetch card data: %s" % e)
 
@@ -101,24 +125,13 @@ class EMVClient(object):
             print("PIN is required")
             return
         card = self.get_reader()
-        apps = card.list_applications()
-
-        # We're selecting the last app on the card here, which on Barclays
-        # cards seems to always be the Barclays one.
-        #
-        # It would be good to work out what logic to use to
-        card.select_application(apps[-1][Tag.ADF_NAME])
-
-        opts = card.get_processing_options()
-        app_data = card.get_application_data(opts['AFL'])
-        res = card.verify_pin(self.args.pin)
-        if type(res) == WarningResponse:
-            print("PIN verification failed!")
+        try:
+            print(card.generate_cap_value(self.args.pin,
+                                          challenge=self.args.challenge,
+                                          value=self.args.amount))
+        except InvalidPINException as e:
+            print(e)
             sys.exit(1)
-        resp = card.tp.exchange(get_arqc_req(app_data,
-                                challenge=self.args.challenge,
-                                value=self.args.amount))
-        print(get_cap_value(resp))
 
     def version(self):
         print(emv.__version__)

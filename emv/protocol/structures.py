@@ -44,7 +44,7 @@ class TLV(dict):
         for key, val in self.items():
             out = "\n%s: " % str(key)
             if type(val) in (TLV, DOL) or \
-               type(val) is list and type(val[0]) in (TLV, DOL):
+               type(val) is list and len(val) > 0 and type(val[0]) in (TLV, DOL):
                 out += str(val)
             else:
                 out += render_element(key, val)
