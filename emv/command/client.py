@@ -4,6 +4,7 @@ import sys
 import logging
 import argparse
 import smartcard
+import emv
 from emv.card import Card
 from emv.protocol.data import Tag, render_element
 from emv.protocol.response import WarningResponse, ErrorResponse
@@ -24,6 +25,9 @@ class EMVClient(object):
         parser.add_argument('-p', type=str, metavar='PIN', dest='pin',
                             help="PIN. Note this may be shown in the system process list.")
         subparsers = parser.add_subparsers(title="subcommands")
+
+        version = subparsers.add_parser('version', help="show version")
+        version.set_defaults(func=self.version)
 
         list_readers = subparsers.add_parser('readers', help="list available card readers")
         list_readers.set_defaults(func=self.list_readers)
@@ -90,3 +94,6 @@ class EMVClient(object):
                                 challenge=self.args.challenge,
                                 value=self.args.amount))
         print(get_cap_value(resp))
+
+    def version(self):
+        print(emv.__version__)
