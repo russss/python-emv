@@ -10,6 +10,12 @@ from emv.protocol.data import Tag, render_element
 from emv.protocol.response import WarningResponse, ErrorResponse
 from emv.cap import get_arqc_req, get_cap_value
 
+LOG_LEVELS = {
+    'info': logging.INFO,
+    'debug': logging.DEBUG,
+    'warn': logging.WARN
+}
+
 
 # Function called by the emvtool shim installed by setuptools
 def run():
@@ -18,12 +24,14 @@ def run():
 
 class EMVClient(object):
     def __init__(self):
-        logging.basicConfig(level=logging.WARN)
         parser = argparse.ArgumentParser(description='EMV Smartcard Tool')
         parser.add_argument('-r', type=int, metavar="READER", default=0, dest='reader',
                             help="the reader to use (default 0)")
         parser.add_argument('-p', type=str, metavar='PIN', dest='pin',
                             help="PIN. Note this may be shown in the system process list.")
+        parser.add_argument('-l', type=str, choices=LOG_LEVELS.keys(),
+                            dest='loglevel', default='warn',
+                            help="log level")
         subparsers = parser.add_subparsers(title="subcommands")
 
         version = subparsers.add_parser('version', help="show version")
@@ -43,6 +51,7 @@ class EMVClient(object):
         cap.set_defaults(func=self.cap)
 
         self.args = parser.parse_args()
+        logging.basicConfig(level=LOG_LEVELS[self.args.loglevel])
 
     def run(self):
         self.args.func()
