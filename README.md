@@ -11,18 +11,6 @@ tested, and heavily cross-referenced with the appropriate sections of the
 This also includes an implementation of the `EMV CAP` (aka Pinsentry)
 standard which is known to work for Barclays cards.
 
-Command-line tool
------------------
-
-This library ships with `emvtool` - a simple command-line tool for testing
-and CAP password generation. To fetch some card metadata, run:
-
-    emvtool info
-
-To generate an EMV CAP one-time passcode:
-
-    emvtool -p <PIN> cap
-
 Installation
 ------------
 
@@ -41,3 +29,15 @@ card in, and run:
     emvtool info
 
 If all goes well, you should see some data about your card.
+
+Command-line tool
+-----------------
+
+This library ships with `emvtool` - a simple command-line tool for testing
+and CAP password generation. To fetch some card metadata, run:
+
+    emvtool info
+
+To generate an EMV CAP one-time passcode:
+
+    emvtool -p <PIN> cap
