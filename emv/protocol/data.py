@@ -1,4 +1,10 @@
 # coding=utf-8
+''' This module deals with tags - identifiers of pieces of data in the EMV protocol.
+    Tags can be one or more bytes long, with a continuation system a bit like UTF-8.
+
+    Tag coding is described in:
+        EMV Version 4.3 Book 3 Annex B1
+'''
 from __future__ import division, absolute_import, print_function, unicode_literals
 from functools import total_ordering
 from .data_elements import ELEMENT_TABLE, Parse
