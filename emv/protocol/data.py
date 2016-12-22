@@ -12,7 +12,7 @@ from .data_elements import ELEMENT_TABLE, SENSITIVE_TAGS, Parse
 from ..util import format_bytes, from_hex_int, from_hex_date, decode_int
 
 DATA_ELEMENTS = dict((tag, name) for tag, name, _, _ in ELEMENT_TABLE)
-ELEMENT_RENDERING = dict((tag, parse) for tag, _, parse, _ in ELEMENT_TABLE if parse is not None)
+ELEMENT_FORMAT = dict((tag, parse) for tag, _, parse, _ in ELEMENT_TABLE if parse is not None)
 ASCII_ELEMENTS = {tag for tag, _, parse, _ in ELEMENT_TABLE if parse == Parse.ASCII}
 DOL_ELEMENTS = {tag for tag, _, parse, _ in ELEMENT_TABLE if parse == Parse.DOL}
 
@@ -46,7 +46,7 @@ def read_tag(data):
         i += 1
         tag += [data[i]]
         i += 1
-        while is_continuation(data[i]):
+        while len(data) > i and is_continuation(data[i]):
             tag += [data[i]]
             i += 1
     else:
@@ -123,9 +123,9 @@ def render_element(tag, value, redact=False):
     if redact and tag in SENSITIVE_TAGS:
         return '[REDACTED]'
 
-    if type(value).__name__ in ('TLV', 'DOL'):
+    if type(value).__name__ in ('TLV', 'DOL', 'TagList'):
         return repr(value)
-    parse = ELEMENT_RENDERING.get(tag)
+    parse = ELEMENT_FORMAT.get(tag)
     if parse is None:
         return format_bytes(value)
     if parse == Parse.ASCII:

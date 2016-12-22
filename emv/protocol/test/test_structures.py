@@ -4,7 +4,7 @@ from unittest2 import TestCase
 from emv.util import unformat_bytes
 from emv.fixtures import APP_DATA
 from emv.protocol.data import Tag
-from emv.protocol.structures import TLV, DOL
+from emv.protocol.structures import TLV, DOL, TagList, read_tag
 
 
 class TestTLV(TestCase):
@@ -41,7 +41,7 @@ class TestTLV(TestCase):
         # We expect this to be a list of TLV objects
         self.assertIs(list, type(tlv[Tag.RECORD][Tag.APP]))
         self.assertEqual(len(tlv[Tag.RECORD][Tag.APP]), 3)
-        print(repr(tlv))
+        repr(tlv)
 
     def test_nested_dol(self):
         tlv = TLV.unmarshal(APP_DATA)
@@ -101,3 +101,19 @@ class TestDOL(TestCase):
 
         with self.assertRaises(Exception):
             dol.unserialise(data)
+
+
+class TestTagList(TestCase):
+
+    def test_read_tag(self):
+        read_tag(unformat_bytes('82')) == [0x82]
+        read_tag(unformat_bytes('9F 42')) == [0x9F, 0x42]
+
+    def test_taglist(self):
+        data = unformat_bytes('82')
+        taglist = TagList.unmarshal(data)
+        self.assertEqual(len(taglist), 1)
+
+        data = unformat_bytes('82 9F 42')
+        taglist = TagList.unmarshal(data)
+        self.assertEqual(len(taglist), 2)

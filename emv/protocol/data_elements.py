@@ -12,6 +12,7 @@ class Parse(Enum):
     INT = 6         # Decode bytes as an integer
     COUNTRY = 7     # Decode bytes as an ISO country code
     CURRENCY = 8    # ISO currency code
+    TAG_LIST = 9    # A list of tag names
 
 
 # This table is derived from:
@@ -133,7 +134,7 @@ ELEMENT_TABLE = [
     ((0x9F, 0x47), 'ICC Public Key Exponent', Parse.BYTES, None),
     ((0x9F, 0x48), 'ICC Public Key Remainder', Parse.BYTES, None),
     ((0x9F, 0x49), 'Dynamic Data Authentication Data Object List (DDOL)', Parse.DOL, 'DDOL'),
-    ((0x9F, 0x4A), 'Static Data Authentication Tag List', Parse.BYTES, None),
+    ((0x9F, 0x4A), 'Static Data Authentication Tag List', Parse.TAG_LIST, None),
     ((0x9F, 0x4B), 'Signed Dynamic Application Data', Parse.BYTES, None),
     ((0x9F, 0x4C), 'ICC Dynamic Number', Parse.BYTES, None),
     ((0x9F, 0x4D), 'Log Entry', Parse.BYTES, None),
@@ -148,7 +149,9 @@ ELEMENT_TABLE = [
 # This should be considered non-exhaustive and used with caution.
 # Some cards may provide sensitive data with under issuer-specific tags.
 SENSITIVE_TAGS = {
-    0x5A,
-    (0x9F, 0x1F),
-    0x57
+    0x5A,           # PAN
+    (0x9F, 0x1F),   # Track1
+    0x57,           # Track2
+    0x56,           # Contains card number/expiry as ASCII (Mastercard prepaid)
+    (0x9F, 0x6B),   # Contains card number as hex (Mastercard prepaid)
 }

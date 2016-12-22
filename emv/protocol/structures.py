@@ -1,7 +1,8 @@
 # coding=utf-8
 from __future__ import division, absolute_import, print_function, unicode_literals
 from collections import OrderedDict
-from .data import DOL_ELEMENTS, render_element, read_tag, is_constructed, Tag
+from .data import ELEMENT_FORMAT, render_element, read_tag, is_constructed, Tag
+from .data_elements import Parse
 
 
 class TLV(dict):
@@ -26,8 +27,10 @@ class TLV(dict):
                 value = TLV.unmarshal(value)
 
             tag = Tag(tag)
-            if tag in DOL_ELEMENTS:
+            if ELEMENT_FORMAT.get(tag) == Parse.DOL:
                 value = DOL.unmarshal(value)
+            elif ELEMENT_FORMAT.get(tag) == Parse.TAG_LIST:
+                value = TagList.unmarshal(value)
 
             # If we have duplicate tags, make them into a list
             if tag in tlv:
@@ -108,3 +111,17 @@ class DOL(OrderedDict):
 
         assert len(output) == self.size()
         return output
+
+
+class TagList(list):
+    ''' A list of tags. '''
+
+    @classmethod
+    def unmarshal(cls, data):
+        tag_list = cls()
+        i = 0
+        while i < len(data):
+            tag, tag_len = read_tag(data[i:])
+            i += tag_len
+            tag_list.append(Tag(tag))
+        return tag_list
