@@ -8,13 +8,13 @@
 from __future__ import division, absolute_import, print_function, unicode_literals
 from functools import total_ordering
 import pycountry
-from .data_elements import ELEMENT_TABLE, Parse
+from .data_elements import ELEMENT_TABLE, SENSITIVE_TAGS, Parse
 from ..util import format_bytes, from_hex_int, from_hex_date, decode_int
 
 DATA_ELEMENTS = dict((tag, name) for tag, name, _, _ in ELEMENT_TABLE)
 ELEMENT_RENDERING = dict((tag, parse) for tag, _, parse, _ in ELEMENT_TABLE if parse is not None)
-ASCII_ELEMENTS = [tag for tag, _, parse, _ in ELEMENT_TABLE if parse == Parse.ASCII]
-DOL_ELEMENTS = [tag for tag, _, parse, _ in ELEMENT_TABLE if parse == Parse.DOL]
+ASCII_ELEMENTS = {tag for tag, _, parse, _ in ELEMENT_TABLE if parse == Parse.ASCII}
+DOL_ELEMENTS = {tag for tag, _, parse, _ in ELEMENT_TABLE if parse == Parse.DOL}
 
 
 def is_two_byte(val):
@@ -116,9 +116,13 @@ for tag, _, _, shortname in ELEMENT_TABLE:
         setattr(Tag, shortname, tag)
 
 
-def render_element(tag, value):
+def render_element(tag, value, redact=False):
     if type(tag) == Tag:
         tag = tag.id
+
+    if redact and tag in SENSITIVE_TAGS:
+        return '[REDACTED]'
+
     if type(value).__name__ in ('TLV', 'DOL'):
         return repr(value)
     parse = ELEMENT_RENDERING.get(tag)

@@ -53,7 +53,7 @@ ELEMENT_TABLE = [
     (0x83, 'Command Template', Parse.BYTES, None),
     (0x84, 'Dedicated File (DF) Name', Parse.BYTES, 'DF'),
     (0x86, 'Issuer Script Command', Parse.BYTES, None),
-    (0x87, 'Application Priority Indicator', Parse.BYTES, None),
+    (0x87, 'Application Priority Indicator', Parse.INT, None),
     (0x88, 'Short File Identifier', Parse.BYTES, 'SFI'),
     (0x89, 'Authorisation Code', Parse.BYTES, None),
     (0x8A, 'Authorisation Response Code', Parse.BYTES, None),
@@ -142,3 +142,13 @@ ELEMENT_TABLE = [
     (0xA5, 'FCI Proprietary Template', Parse.BYTES, 'FCI_PROP'),
     ((0xBF, 0x0C), 'FCI Issuer Discretionary Data', Parse.BYTES, None),
 ]
+
+
+# A list of tags which contain sensitive data, for redacting data for public display.
+# This should be considered non-exhaustive and used with caution.
+# Some cards may provide sensitive data with under issuer-specific tags.
+SENSITIVE_TAGS = {
+    0x5A,
+    (0x9F, 0x1F),
+    0x57
+}

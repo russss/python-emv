@@ -20,12 +20,12 @@ LOG_LEVELS = {
 }
 
 
-def as_table(tlv, title=None):
+def as_table(tlv, title=None, redact=False):
     res = [['Tag', 'Name', 'Value']]
     for tag, value in tlv.items():
         res.append([format_bytes(tag.id),
                     tag.name or '',
-                    '\n'.join(textwrap.wrap(render_element(tag, value), 80))])
+                    '\n'.join(textwrap.wrap(render_element(tag, value, redact=redact), 80))])
     table = SingleTable(res)
     if title is not None:
         table.title = title
@@ -56,6 +56,9 @@ class EMVClient(object):
         list_readers.set_defaults(func=self.list_readers)
 
         info = subparsers.add_parser('info', help="retrieve card info")
+        info.add_argument('-r', dest='redact', action='store_true',
+                          help='''redact sensitive data for public display. Note that this is not foolproof
+                                    - your card may send sensitive data in tags we don't know about!''')
         info.set_defaults(func=self.card_info)
 
         cap = subparsers.add_parser('cap', help="perform EMV CAP authentication")
@@ -86,11 +89,6 @@ class EMVClient(object):
 
     def card_info(self):
         card = self.get_reader()
-        print("Testing for existence of MF...")
-        try:
-            print(card.get_mf())
-        except ErrorResponse as e:
-            print("MF not found: %s" % e)
         apps = card.list_applications()
 
         if type(apps) != list:
@@ -104,13 +102,13 @@ class EMVClient(object):
                 render_element(Tag.APP_LABEL, app[Tag.APP_LABEL]),
                 render_element(Tag.DF, app[Tag.ADF_NAME])))
             data = card.select_application(app[Tag.ADF_NAME]).data
-            print(as_table(data[Tag.FCI][Tag.FCI_PROP], 'FCI Proprietary Data'))
+            print(as_table(data[Tag.FCI][Tag.FCI_PROP], 'FCI Proprietary Data', redact=self.args.redact))
             for i in range(1, 10):
                 try:
                     rec = card.read_record(1, sfi=i).data
                 except ErrorResponse as e:
                     break
-                print(as_table(rec[Tag.RECORD], 'File: %s' % i))
+                print(as_table(rec[Tag.RECORD], 'File: %s' % i, redact=self.args.redact))
 
         print("\nFetching card data...")
         try:
