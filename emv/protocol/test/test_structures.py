@@ -49,6 +49,12 @@ class TestTLV(TestCase):
         self.assertIn(Tag.RECORD, tlv)
         self.assertIs(type(tlv[Tag.RECORD][Tag.CDOL1]), DOL)
 
+    def test_invalid_tlv(self):
+        # An actual bit of data found on a card. 0x61 indicates that it's TLV format but
+        # no following bytes make it invalid.
+        data = unformat_bytes('61')
+        self.assertEqual(TLV.unmarshal(data), [0x61])
+
 
 class TestDOL(TestCase):
     # Barclays debit CDOL1
