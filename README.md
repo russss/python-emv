@@ -17,7 +17,7 @@ Installation
 You'll need the pcsc smartcard libraries on your system in order to build the
 smartcard bindings. On Ubuntu:
 
-    sudo apt-get install build-essential swig libpcsclite-dev python-pip
+    sudo apt-get install build-essential swig libpcsclite-dev python-pip python-devel
 
 Then you can install emv from pip:
 
