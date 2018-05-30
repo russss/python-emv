@@ -11,6 +11,8 @@ class Parse(Enum):
     COUNTRY = 7     # Decode bytes as an ISO country code
     CURRENCY = 8    # ISO currency code
     TAG_LIST = 9    # A list of tag names
+    ASRPD = 10      # Application Selection Registered Proprietary Data list
+    CVM_LIST = 11   # Cardholder Verification Method List
 
 
 # This table is derived from:
@@ -20,10 +22,12 @@ class Parse(Enum):
 #   (Tag, Description, Parsing, Shortname)
 ELEMENT_TABLE = [
     (0x42, 'Issuer Identification Number', Parse.BYTES, 'IIN'),
+    (0x46, 'Pre-issuing data', Parse.BYTES, None),
     (0x4F, 'Application Dedicated File (ADF) Name', Parse.BYTES, 'ADF_NAME'),
     (0x50, 'Application Label', Parse.ASCII, 'APP_LABEL'),
     (0x57, 'Track 2 Equivalent Data', Parse.BYTES, 'TRACK2'),
     (0x5A, 'Application Primary Account Number (PAN)', Parse.DEC, 'PAN'),
+    (0x5E, 'Proprietary Login Data', Parse.BYTES, None),
     ((0x5F, 0x20), 'Cardholder Name', Parse.ASCII, None),
     ((0x5F, 0x24), 'Application Expiration Date', Parse.DATE, None),
     ((0x5F, 0x25), 'Application Effective Date', Parse.DATE, None),
@@ -58,7 +62,7 @@ ELEMENT_TABLE = [
     (0x8A, 'Authorisation Response Code', Parse.BYTES, None),
     (0x8C, 'Card Risk Management Data Object List 1 (CDOL1)', Parse.DOL, 'CDOL1'),
     (0x8D, 'Card Risk Management Data Object List 2 (CDOL2)', Parse.DOL, 'CDOL2'),
-    (0x8E, 'Cardholder Verification Method (CVM) List', Parse.BYTES, None),
+    (0x8E, 'Cardholder Verification Method (CVM) List', Parse.CVM_LIST, None),
     (0x8F, 'Certification Authority Public Key Index', Parse.BYTES, None),
     (0x90, 'Issuer Public Key Certificate', Parse.BYTES, None),
     (0x91, 'Issuer Authentication Data', Parse.BYTES, None),
@@ -73,6 +77,8 @@ ELEMENT_TABLE = [
     (0x9B, 'Transaction Status Information', Parse.BYTES, None),
     (0x9C, 'Transaction Type', Parse.BYTES, None),
     (0x9D, 'DDF Name', Parse.BYTES, 'DDF'),
+    (0xC8, 'Card risk management country code', Parse.COUNTRY, None),
+    (0xC9, 'Card risk management currency code', Parse.CURRENCY, None),
     ((0x9F, 0x01), 'Acquirer Identifier', Parse.BYTES, None),
     ((0x9F, 0x02), 'Amount, Authorised', Parse.BYTES, None),
     ((0x9F, 0x03), 'Amount, Other (Numeric)', Parse.BYTES, None),
@@ -82,6 +88,7 @@ ELEMENT_TABLE = [
     ((0x9F, 0x07), 'Application Usage Control', Parse.BYTES, 'AUC'),
     ((0x9F, 0x08), 'Application Version Number', Parse.BYTES, None),
     ((0x9F, 0x09), 'Application Version Number', Parse.BYTES, None),
+    ((0x9F, 0x0A), 'Application Selection Registered Proprietary Data', Parse.ASRPD, None),
     ((0x9F, 0x0B), 'Cardholder Name Extended', Parse.ASCII, None),
     ((0x9F, 0x0D), 'Issuer Action Code - Default', Parse.BYTES, None),
     ((0x9F, 0x0E), 'Issuer Action Code - Denial', Parse.BYTES, None),
@@ -138,6 +145,10 @@ ELEMENT_TABLE = [
     ((0x9F, 0x4D), 'Log Entry', Parse.BYTES, None),
     ((0x9F, 0x4E), 'Merchant Name and Location', Parse.BYTES, None),
     ((0x9F, 0x4F), 'Log Format', Parse.BYTES, None),
+    ((0x9F, 0x5C), 'Cumulative Total Transaction Amount Upper Limit', Parse.INT, 'CTTAUL'),
+    ((0x9F, 0x5D), 'Available Offline Spending Amount', Parse.INT, 'AOSA'),
+    ((0x9F, 0x5E), 'Consecutive Transaction International Upper Limit', Parse.INT, 'CTIUL'),
+    ((0x9F, 0x6E), 'Third Party Data', Parse.BYTES, None),
     (0xA5, 'FCI Proprietary Template', Parse.BYTES, 'FCI_PROP'),
     ((0xBF, 0x0C), 'FCI Issuer Discretionary Data', Parse.BYTES, None),
 ]
@@ -152,4 +163,13 @@ SENSITIVE_TAGS = {
     0x57,           # Track2
     0x56,           # Contains card number/expiry as ASCII (Mastercard prepaid)
     (0x9F, 0x6B),   # Contains card number as hex (Mastercard prepaid)
+}
+
+# European Payments Council product ID
+# https://www.europeanpaymentscouncil.eu/sites/default/files/KB/files/EPC050-16%20SCS%20Volume%207%201%20-%20Bul%2001%20-%2020160229%20-%20Book%202%20-%20EEA%20Product%20Identification%20and%20usage%20in%20Selection%20of%20Application.pdf
+EPC_PRODUCT_ID = {
+    1: 'Debit',
+    2: 'Credit',
+    3: 'Commercial',
+    4: 'Pre-paid'
 }

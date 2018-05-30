@@ -9,6 +9,7 @@ from terminaltables import SingleTable
 import emv
 from emv.card import Card
 from emv.protocol.data import Tag, render_element
+from emv.protocol.structures import TLV
 from emv.protocol.response import ErrorResponse
 from emv.exc import InvalidPINException
 from emv.util import format_bytes
@@ -22,6 +23,8 @@ LOG_LEVELS = {
 
 def as_table(tlv, title=None, redact=False):
     res = [['Tag', 'Name', 'Value']]
+    if type(tlv) is not TLV:
+        return ''
     for tag, value in tlv.items():
         res.append([format_bytes(tag.id),
                     tag.name or '',
@@ -76,6 +79,23 @@ def readers():
         click.echo("%i: %s" % (i, readers[i]))
 
 
+def render_app(card, df, redact):
+    try:
+        data = card.select_application(df).data
+    except ErrorResponse as e:
+        click.secho("Unable to access app: %s" % e, fg="yellow")
+        return
+
+    click.echo(as_table(data[Tag.FCI][Tag.FCI_PROP], 'FCI Proprietary Data', redact=redact))
+    for i in range(1, 31):
+        try:
+            for j in range(1, 16):
+                rec = card.read_record(j, sfi=i).data
+                click.echo(as_table(rec[Tag.RECORD], 'File: %s,%s' % (i, j), redact=redact))
+        except ErrorResponse as e:
+            continue
+
+
 @cli.command(help="Dump card information")
 @click.option('--redact/--no-redact', default=False,
               help='redact sensitive data for public display. Note that this is not foolproof ' +
@@ -85,26 +105,21 @@ def info(ctx, redact):
     card = get_reader(ctx.obj['reader'])
     apps = card.list_applications()
 
-    if type(apps) != list:
-        apps = [apps]
+    click.secho("\n1PAY.SYS.DDF01 (Index of apps for chip payments)", bold=True)
+    render_app(card, '1PAY.SYS.DDF01', redact)
+    click.secho("\n2PAY.SYS.DDF01 (Index of apps for contactless payments)", bold=True)
+    render_app(card, '2PAY.SYS.DDF01', redact)
 
-    click.echo("Available apps: %s" % (", ".join(render_element(Tag.APP_LABEL, app[Tag.APP_LABEL])
-                                                 for app in apps)))
+    click.echo("Available named apps: %s" % (", ".join(render_element(Tag.APP_LABEL, app[Tag.APP_LABEL])
+                                             for app in apps)))
 
     for app in apps:
         click.secho("\nApplication %s, DF Name: %s" % (
             render_element(Tag.APP_LABEL, app[Tag.APP_LABEL]),
             render_element(Tag.DF, app[Tag.ADF_NAME])), bold=True)
-        data = card.select_application(app[Tag.ADF_NAME]).data
-        print(as_table(data[Tag.FCI][Tag.FCI_PROP], 'FCI Proprietary Data', redact=redact))
-        for i in range(1, 10):
-            try:
-                rec = card.read_record(1, sfi=i).data
-            except ErrorResponse as e:
-                break
-            print(as_table(rec[Tag.RECORD], 'File: %s' % i, redact=redact))
+        render_app(card, app[Tag.ADF_NAME], redact)
 
-    click.echo("\nFetching card data...")
+    click.echo("\nFetching card metadata...")
     try:
         tab = SingleTable(card.get_metadata().items())
         tab.inner_heading_row_border = False

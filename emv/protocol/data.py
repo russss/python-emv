@@ -121,8 +121,12 @@ def render_element(tag, value, redact=False):
     if redact and tag in SENSITIVE_TAGS:
         return '[REDACTED]'
 
-    if type(value).__name__ in ('TLV', 'DOL', 'TagList'):
+    if type(value).__name__ in ('TLV', 'DOL', 'TagList', 'ASRPD', 'CVMList'):
         return repr(value)
+
+    if type(value) is list and len(value) == 0 or type(value[0]) is not int:
+        return ",\n".join(render_element(tag, val, redact) for val in value)
+
     parse = ELEMENT_FORMAT.get(tag)
     if parse is None:
         return format_bytes(value)
@@ -135,7 +139,10 @@ def render_element(tag, value, redact=False):
     if parse == Parse.INT:
         return str(decode_int(value))
     if parse == Parse.COUNTRY:
-        return pycountry.countries.get(numeric=str(from_hex_int(value))).alpha_2
+        try:
+            return pycountry.countries.get(numeric=str(from_hex_int(value))).alpha_2
+        except ValueError:
+            return "<Invalid country: %s>" % value
     if parse == Parse.CURRENCY:
         return pycountry.currencies.get(numeric=str(from_hex_int(value))).alpha_3
     return format_bytes(value)

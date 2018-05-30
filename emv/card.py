@@ -23,7 +23,11 @@ class Card(object):
         res = self.tp.exchange(SelectCommand('1PAY.SYS.DDF01'))
         sfi = res.data[Tag.FCI][Tag.FCI_PROP][Tag.SFI][0]
         res = self.tp.exchange(ReadCommand(1, sfi))
-        return res.data[Tag.RECORD][Tag.APP]
+        apps = res.data[Tag.RECORD][Tag.APP]
+
+        if type(apps) is not list:
+            apps = [apps]
+        return apps
 
     def read_record(self, record_number, sfi=None):
         return self.tp.exchange(ReadCommand(record_number, sfi))

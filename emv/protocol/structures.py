@@ -1,6 +1,10 @@
 from collections import OrderedDict
 from .data import ELEMENT_FORMAT, render_element, read_tag, is_constructed, Tag
-from .data_elements import Parse
+from .data_elements import Parse, EPC_PRODUCT_ID
+from ..util import decode_int
+import logging
+
+log = logging.getLogger(__name__)
 
 
 class TLV(dict):
@@ -18,11 +22,15 @@ class TLV(dict):
         if len(data) < 3:
             # A valid TLV record is at least three bytes, anything less is probably a bug.
             # I've seen some cards present this (with a TLV of simply [0x61]), so silently ignore.
+            log.warn("Invalid TLV - too short: %s", data)
             return data
 
         while i < len(data):
             tag, tag_len = read_tag(data[i:])
             i += tag_len
+            if len(data) <= i:
+                log.warn("Invalid TLV - read beyond end of buffer at %s: %s", tag, data)
+                return data
             length = data[i]
             i += 1
             value = data[i:i + length]
@@ -35,6 +43,10 @@ class TLV(dict):
                 value = DOL.unmarshal(value)
             elif ELEMENT_FORMAT.get(tag) == Parse.TAG_LIST:
                 value = TagList.unmarshal(value)
+            elif ELEMENT_FORMAT.get(tag) == Parse.ASRPD:
+                value = ASRPD.unmarshal(value)
+            elif ELEMENT_FORMAT.get(tag) == Parse.CVM_LIST:
+                value = CVMList.unmarshal(value)
 
             # If we have duplicate tags, make them into a list
             if tag in tlv:
@@ -57,6 +69,44 @@ class TLV(dict):
                 out += render_element(key, val)
             vals.append(out)
         return "{" + (", ".join(vals)) + "}"
+
+
+class ASRPD(dict):
+    ''' Application Selection Registered Proprietary Data list.
+
+        An almost-TLV structure used in the FCI Discretionary Data object.
+        The tags here are fixed-length.
+
+        https://www.emvco.com/wp-content/uploads/2017/05/BookB_Entry_Point_Specification_v2_6_20160809023257319.pdf
+    '''
+
+    @classmethod
+    def unmarshal(cls, data):
+        asrpd = cls()
+
+        i = 0
+
+        while i < len(data):
+            # 2 bytes Proprietary Data Identifier
+            pdi = "%02i%02i" % tuple(data[i:i+2])
+            i += 2
+
+            length = data[i]
+            i += 1
+
+            asrpd[pdi] = data[i:i+length]
+            i += length
+
+        return asrpd
+
+    def __repr__(self):
+        ret = "<ASRPD: "
+        for pdi, value in self.items():
+            if pdi == '0001':
+                ret += 'Electronic Product Identification: '
+                ret += EPC_PRODUCT_ID.get(value[0], 'Unknown')
+        ret += '>'
+        return ret
 
 
 class DOL(OrderedDict):
@@ -129,3 +179,82 @@ class TagList(list):
             i += tag_len
             tag_list.append(Tag(tag))
         return tag_list
+
+
+class CVMRule(object):
+    ''' EMV 4.3 book 3 appendix C3 '''
+
+    RULES = {
+        # 0b00000000: "Fail CVM processing",
+        0b00000001: "Plaintext PIN verification performed by ICC",
+        0b00000010: "Enciphered PIN verified online",
+        0b00000011: "Plaintext PIN verification performed by ICC and signature (paper)",
+        0b00000100: "Enciphered PIN verification performed by ICC",
+        0b00000101: "Enciphered PIN verification performed by ICC and signature (paper)",
+        0b00011110: "Signature (paper)",
+        0b00111111: "No CVM required"
+    }
+
+    CODES = {
+        0: 'Always',
+        1: 'If unattended cash',
+        2: 'If not unattended cash and not manual cash and not purchase with cashback',
+        3: 'If terminal supports the CVM',
+        4: 'If manual cash',
+        5: 'If purchase with cashback',
+        6: 'If transaction is in the application currency and is under X value',
+        7: 'If transaction is in the application currency and is over X value',
+        8: 'If transaction is in the application currency and is under Y value',
+        9: 'If transaction is in the application currency and is over Y value'
+    }
+
+    @classmethod
+    def unmarshal(cls, b1, b2):
+        rule = cls()
+        rule.b1 = b1
+        rule.b2 = b2
+        return rule
+
+    def rule_repr(self):
+        for k, v in self.RULES.items():
+            if (self.b1 & k) == k:
+                return v
+        return "Fail CVM processing"
+
+    def code_repr(self):
+        return self.CODES.get(self.b2)
+
+    def fail_if_unsuccessful(self):
+        return self.b1 & 0b01000000 == 0b01000000
+
+    def __repr__(self):
+        if self.fail_if_unsuccessful():
+            fail = '. Else, fail verification.'
+        else:
+            fail = ''
+
+        return "%s, %s%s" % (self.code_repr(), self.rule_repr(), fail)
+
+
+class CVMList(object):
+    ''' EMV 4.3 book 3 section 10.5 '''
+
+    @classmethod
+    def unmarshal(cls, data):
+        cvm_list = cls()
+
+        cvm_list.x = decode_int(data[0:4])
+        cvm_list.y = decode_int(data[4:8])
+
+        cvm_list.rules = []
+
+        i = 8
+        while i < len(data):
+            cvm_list.rules.append(CVMRule.unmarshal(data[i], data[i+1]))
+            i += 2
+
+        return cvm_list
+
+    def __repr__(self):
+        return "<CVM List x: %s, y: %s, rules: %s>" % (self.x, self.y,
+                                                       "; ".join([repr(r) for r in self.rules]))

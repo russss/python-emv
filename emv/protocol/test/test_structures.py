@@ -4,7 +4,7 @@ from unittest2 import TestCase
 from emv.util import unformat_bytes
 from emv.test.fixtures import APP_DATA
 from emv.protocol.data import Tag
-from emv.protocol.structures import TLV, DOL, TagList, read_tag
+from emv.protocol.structures import TLV, DOL, TagList, read_tag, CVMList
 
 
 class TestTLV(TestCase):
@@ -123,3 +123,10 @@ class TestTagList(TestCase):
         data = unformat_bytes('82 9F 42')
         taglist = TagList.unmarshal(data)
         self.assertEqual(len(taglist), 2)
+
+
+class TestCVMList(TestCase):
+
+    def test_main(self):
+        data = unformat_bytes('00 00 00 00 00 00 00 00 41 03 1E 03 02 03 1F 03')
+        print(CVMList.unmarshal(data))
