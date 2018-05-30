@@ -3,7 +3,7 @@ python:
   - '3.5'
   - '3.6'
 install: pip install pytest unittest2
-script: pytest ./emv
+script: python3 -m pytest
 addons:
   apt:
     packages:
