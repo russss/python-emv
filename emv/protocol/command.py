@@ -1,7 +1,5 @@
-# coding=utf-8
-from __future__ import division, absolute_import, print_function, unicode_literals
 from ..util import format_bytes
-import six
+import codecs
 
 
 def assert_valid_byte(val):
@@ -84,7 +82,7 @@ class SelectCommand(CAPDU):
 
     def __init__(self, file_path=None, file_identifier=None, next_occurrence=False):
         if file_path is not None:
-            if isinstance(file_path, six.string_types):
+            if isinstance(file_path, str):
                 self.data = [ord(c) for c in file_path]
             else:
                 self.data = file_path
@@ -165,10 +163,12 @@ class VerifyCommand(CAPDU):
         self.p1 = 0x00
         self.p2 = self.PIN_PLAINTEXT
 
-        data = b'2%x%s' % (len(str(pin)), pin)
+        # Fields in this data structure are split on a nibble boundary,
+        # so assemble as a hex string and decode
+        data = ('2%x%s' % (len(str(pin)), pin)).encode('ascii')
         while len(data) < 16:
-            data += 'f'
-        self.data = [ord(i) for i in data.decode('hex')]
+            data += b'f'
+        self.data = codecs.decode(data, 'hex')
 
         self.le = 0x00
 

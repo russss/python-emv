@@ -1,5 +1,3 @@
-# coding=utf-8
-from __future__ import division, absolute_import, print_function, unicode_literals
 from unittest2 import TestCase
 from emv.util import unformat_bytes
 from emv.protocol.command import SelectCommand

@@ -1,5 +1,3 @@
-# coding=utf-8
-from __future__ import division, absolute_import, print_function, unicode_literals
 from .util import unformat_bytes
 
 APP_DATA = unformat_bytes('''70 68 8C 15 9F 02 06 9F 03 06 9F 1A 02 95 05 5F 2A 02 9A 03 9C

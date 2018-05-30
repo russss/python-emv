@@ -1,5 +1,3 @@
-# coding=utf-8
-from __future__ import division, absolute_import, print_function, unicode_literals
 from collections import OrderedDict
 from .data import ELEMENT_FORMAT, render_element, read_tag, is_constructed, Tag
 from .data_elements import Parse

@@ -1,4 +1,3 @@
-# coding=utf-8
 from __future__ import division, absolute_import, print_function, unicode_literals
 from .transmission import TransmissionProtocol
 from .protocol.structures import TLV
@@ -6,7 +5,7 @@ from .protocol.data import Tag
 from .protocol.response import WarningResponse
 from .protocol.command import (SelectCommand, ReadCommand, GetDataCommand,
                                GetProcessingOptions, VerifyCommand)
-from .exc import InvalidPINException
+from .exc import InvalidPINException, MissingAppException
 from .util import decode_int
 from .cap import get_arqc_req, get_cap_value
 
@@ -79,6 +78,9 @@ class Card(object):
     def generate_cap_value(self, pin, challenge=None, value=None):
         ''' Perform a transaction to generate the EMV CAP (Pinsentry) value. '''
         apps = self.list_applications()
+
+        if len(apps) == 0:
+            raise MissingAppException("No apps on card")
 
         # We're selecting the last app on the card here, which on Barclays
         # cards seems to always be the Barclays one.

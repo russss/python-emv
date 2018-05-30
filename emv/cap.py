@@ -1,4 +1,3 @@
-# coding=utf-8
 ''' EMV Chip Authentication Program, a.k.a DPA, a.k.a Pinsentry.
 
     There is no public specification for the EMV CAP "standard". The code in this
@@ -9,7 +8,6 @@
     I make no guarantees for non-UK cards as I'm aware that certain banks have
     made their own "customisations" to EMV CAP.
 '''
-from __future__ import division, absolute_import, print_function, unicode_literals
 from .protocol.data import Tag
 from .protocol.command import GenerateApplicationCryptogramCommand
 from .protocol.structures import DOL

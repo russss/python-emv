@@ -28,12 +28,11 @@ setup(name='emv',
           'Development Status :: 3 - Alpha',
           'License :: OSI Approved :: MIT License',
           'Programming Language :: Python :: 2',
-          'Programming Language :: Python :: 3'
       ],
       keywords='smartcard emv payment',
 
       packages=['emv', 'emv.protocol', 'emv.command'],
-      install_requires=['enum-compat', 'argparse', 'pyscard', 'pycountry', 'terminaltables'],
+      install_requires=['enum-compat', 'argparse', 'pyscard', 'pycountry', 'terminaltables', 'click'],
       entry_points={
           'console_scripts': {
               'emvtool=emv.command.client:run'

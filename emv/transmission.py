@@ -1,5 +1,3 @@
-# coding=utf-8
-from __future__ import division, absolute_import, print_function, unicode_literals
 import logging
 from .protocol.response import RAPDU
 from .util import format_bytes

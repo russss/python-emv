@@ -1,11 +1,10 @@
-# coding=utf-8
-from __future__ import division, absolute_import, print_function, unicode_literals
 from unittest2 import TestCase
 from emv.protocol.response import RAPDU
 from emv.protocol.structures import TLV
-from emv.fixtures import APP_DATA
 from emv.util import unformat_bytes
 from emv.cap import get_cap_value, get_arqc_req
+
+from .fixtures import APP_DATA
 
 
 class TestCAP(TestCase):
