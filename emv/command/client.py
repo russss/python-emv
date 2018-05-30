@@ -45,7 +45,11 @@ def run():
     cli(obj={})
 
 
-@click.group()
+@click.group(help="""Utility to interact with EMV payment cards.
+
+Although this tool has been relatively well tested, it's possible to
+block or even potentially damage your card. Please make sure you understand the risks.
+""")
 @click.option('--reader', '-r', type=int, metavar="READER", default=0,
               help="the reader to use (default 0)")
 @click.option('--pin', '-p', type=str, metavar='PIN',
@@ -116,7 +120,15 @@ def info(ctx, redact):
 def cap(ctx, challenge, amount):
     if 'pin' not in ctx.obj:
         click.secho("PIN is required", fg='red')
-        return
+        sys.exit(2)
+
+    if challenge is None and amount is None:
+        click.secho("Challenge or account number and amount must be supplied", fg='red')
+        sys.exit(3)
+    elif amount is not None and challenge is None:
+        click.secho("Challenge (account number) must be supplied with amount", fg='red')
+        sys.exit(3)
+
     card = get_reader(ctx.obj['reader'])
     try:
         click.echo(card.generate_cap_value(ctx.obj['pin'], challenge=challenge, value=amount))
