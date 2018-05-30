@@ -122,10 +122,7 @@ def cap(ctx, challenge, amount):
         click.secho("PIN is required", fg='red')
         sys.exit(2)
 
-    if challenge is None and amount is None:
-        click.secho("Challenge or account number and amount must be supplied", fg='red')
-        sys.exit(3)
-    elif amount is not None and challenge is None:
+    if amount is not None and challenge is None:
         click.secho("Challenge (account number) must be supplied with amount", fg='red')
         sys.exit(3)
 
