@@ -2,7 +2,9 @@ language: python
 python:
   - '3.5'
   - '3.6'
-install: pip install pytest unittest2
+install: 
+  - pip install pytest unittest2
+  - python ./setup.py develop
 script: python3 -m pytest
 addons:
   apt:
