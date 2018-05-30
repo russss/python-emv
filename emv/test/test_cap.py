@@ -4,7 +4,7 @@ from emv.protocol.structures import TLV
 from emv.util import unformat_bytes
 from emv.cap import get_cap_value, get_arqc_req
 
-from .fixtures import APP_DATA
+from emv.test.fixtures import APP_DATA
 
 
 class TestCAP(TestCase):

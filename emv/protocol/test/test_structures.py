@@ -2,7 +2,7 @@
 from __future__ import division, absolute_import, print_function, unicode_literals
 from unittest2 import TestCase
 from emv.util import unformat_bytes
-from emv.fixtures import APP_DATA
+from emv.test.fixtures import APP_DATA
 from emv.protocol.data import Tag
 from emv.protocol.structures import TLV, DOL, TagList, read_tag
 
