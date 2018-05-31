@@ -2,7 +2,7 @@ from __future__ import division, absolute_import, print_function, unicode_litera
 from .transmission import TransmissionProtocol
 from .protocol.structures import TLV
 from .protocol.data import Tag
-from .protocol.response import WarningResponse
+from .protocol.response import WarningResponse, ErrorResponse
 from .protocol.command import (SelectCommand, ReadCommand, GetDataCommand,
                                GetProcessingOptions, VerifyCommand)
 from .exc import InvalidPINException, MissingAppException
@@ -33,7 +33,10 @@ class Card(object):
         return self.tp.exchange(ReadCommand(record_number, sfi))
 
     def select_application(self, app):
-        res = self.tp.exchange(SelectCommand(app))
+        try:
+            res = self.tp.exchange(SelectCommand(app))
+        except ErrorResponse as e:
+            raise MissingAppException(e)
         return res
 
     def get_metadata(self):

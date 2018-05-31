@@ -11,6 +11,7 @@
 from .protocol.data import Tag
 from .protocol.command import GenerateApplicationCryptogramCommand
 from .protocol.structures import DOL
+from .exc import CAPError
 from .util import hex_int
 
 # Older cards will respond with an opaque, packed response to the
@@ -31,7 +32,10 @@ def get_arqc_req(app_data, value=None, challenge=None):
 
         This is the algorithm that barclays_pinsentry.c uses.
     '''
-    cdol1 = app_data[0x8C]
+    if Tag.CDOL1 not in app_data:
+        raise CAPError("Application data doesn't include CDOL1 field: %r" % app_data)
+
+    cdol1 = app_data[Tag.CDOL1]
     data = {
         Tag(0x9A): [0x01, 0x01, 0x01],              # Transaction Date
         Tag(0x95): [0x80, 0x00, 0x00, 0x00, 0x00]   # Terminal Verification Results
@@ -54,9 +58,14 @@ def get_arqc_req(app_data, value=None, challenge=None):
 def get_cap_value(response):
     ''' Generate a CAP value from the ARQC response.
 
-        This algorithm is the one used by barclays-pinsentry.
+        This algorithm is the one used by barclays-pinsentry.c, but this will only work
+        for a subset of cards.
+
+        The proper way to do this is to use the Issuer Proprietary Bitmap from the
+        application data response.
+
+        c.f. https://github.com/zoobab/EMVCAP/blob/master/EMVCAPcore.py#L507
     '''
-    assert 0x80 in response.data or 0x77 in response.data
 
     if Tag.RMTF1 in response.data:
         # Response type 1, deserialise it with our static DOL.
@@ -64,9 +73,17 @@ def get_cap_value(response):
     elif Tag.RMTF2 in response.data:
         # Response type 2, TLV format.
         data = response.data[Tag.RMTF2]
+    else:
+        raise CAPError("Unknown response type in ARQC response: %s" % response.data)
 
-    atc = data[Tag.ATC]  # Application Transaction Counter
+    atc = data[Tag.ATC]       # Application Transaction Counter
     ac = data[(0x9F, 0x26)]   # Application Cryptogram
+
+    # The bitshift magic below *probably* corresponds to the IPB from Barclays cards:
+    # CID = I, ATC = A, AC = C, IAD = D
+    #
+    # II AA AA CC CC CC CC CC CC CC CC DD DD DD DD DD DD DD DD DD DD DD...
+    # 80 00 FF 00 00 00 00 00 01 FF FF 00 00 00 00 00 00 00
 
     result = ((1 << 25) | (atc[1] << 17) | ((ac[5] & 0x01) << 16) | (ac[6] << 8) | ac[7])
     return result

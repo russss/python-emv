@@ -46,3 +46,8 @@ def format_bytes(data):
 def unformat_bytes(data):
     data = re.split('\s+', data)
     return [int(i, 16) for i in data]
+
+
+def bit_set(value, bit):
+    mask = 1 << bit
+    return (value & mask) == mask

@@ -1,10 +1,24 @@
 from collections import OrderedDict
 from .data import ELEMENT_FORMAT, render_element, read_tag, is_constructed, Tag
 from .data_elements import Parse, EPC_PRODUCT_ID
-from ..util import decode_int
+from ..util import decode_int, bit_set
 import logging
 
 log = logging.getLogger(__name__)
+
+
+def parse_element(tag, value):
+    if ELEMENT_FORMAT.get(tag) == Parse.DOL:
+        value = DOL.unmarshal(value)
+    elif ELEMENT_FORMAT.get(tag) == Parse.TAG_LIST:
+        value = TagList.unmarshal(value)
+    elif ELEMENT_FORMAT.get(tag) == Parse.ASRPD:
+        value = ASRPD.unmarshal(value)
+    elif ELEMENT_FORMAT.get(tag) == Parse.CVM_LIST:
+        value = CVMList.unmarshal(value)
+    elif ELEMENT_FORMAT.get(tag) == Parse.AUC:
+        value = AUC.unmarshal(value)
+    return value
 
 
 class TLV(dict):
@@ -39,14 +53,7 @@ class TLV(dict):
                 value = TLV.unmarshal(value)
 
             tag = Tag(tag)
-            if ELEMENT_FORMAT.get(tag) == Parse.DOL:
-                value = DOL.unmarshal(value)
-            elif ELEMENT_FORMAT.get(tag) == Parse.TAG_LIST:
-                value = TagList.unmarshal(value)
-            elif ELEMENT_FORMAT.get(tag) == Parse.ASRPD:
-                value = ASRPD.unmarshal(value)
-            elif ELEMENT_FORMAT.get(tag) == Parse.CVM_LIST:
-                value = CVMList.unmarshal(value)
+            value = parse_element(tag, value)
 
             # If we have duplicate tags, make them into a list
             if tag in tlv:
@@ -237,11 +244,23 @@ class CVMRule(object):
 
 
 class CVMList(object):
-    ''' EMV 4.3 book 3 section 10.5 '''
+    '''CVM is a tiny language for the card to dictate when the terminal should fail the
+        transaction or force it online.
+
+        It doesn't seem to get much interesting use on many of the cards I've seen though.
+
+    EMV 4.3 book 3 section 10.5 '''
+
+    def __init__(self):
+        self.x = None
+        self.y = None
+        self.rules = []
 
     @classmethod
     def unmarshal(cls, data):
         cvm_list = cls()
+        if len(data) < 10 or len(data) % 2 != 0:
+            return cvm_list
 
         cvm_list.x = decode_int(data[0:4])
         cvm_list.y = decode_int(data[4:8])
@@ -258,3 +277,46 @@ class CVMList(object):
     def __repr__(self):
         return "<CVM List x: %s, y: %s, rules: %s>" % (self.x, self.y,
                                                        "; ".join([repr(r) for r in self.rules]))
+
+
+class AUC(object):
+
+    B1_FIELDS = [
+        'Valid for domestic cash transactions',
+        'Valid for international cash transactions',
+        'Valid for domestic goods',
+        'Valid for international goods',
+        'Valid for domestic services',
+        'Valid for international services',
+        'Valid at ATMs',
+        'Valid at terminals other than ATMs'
+    ]
+
+    B2_FIELDS = [
+        'Domestic cashback allowed',
+        'International cashback allowed'
+    ]
+
+    @classmethod
+    def unmarshal(cls, data):
+        auc = cls()
+        if len(data) != 2:
+            return auc
+
+        auc.b1 = data[0]
+        auc.b2 = data[1]
+        return auc
+
+    def get_uses(self):
+        uses = []
+        for i in range(0, len(self.B1_FIELDS)):
+            if bit_set(self.b1, i):
+                uses.append(self.B1_FIELDS[i])
+
+        for i in range(0, len(self.B2_FIELDS)):
+            if bit_set(self.b2, i):
+                uses.append(self.B2_FIELDS[i])
+        return uses
+
+    def __repr__(self):
+        return '<AUC: %s>' % ', '.join(self.get_uses())

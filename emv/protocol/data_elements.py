@@ -13,6 +13,7 @@ class Parse(Enum):
     TAG_LIST = 9    # A list of tag names
     ASRPD = 10      # Application Selection Registered Proprietary Data list
     CVM_LIST = 11   # Cardholder Verification Method List
+    AUC = 12        # Application Usage Control
 
 
 # This table is derived from:
@@ -85,7 +86,7 @@ ELEMENT_TABLE = [
     ((0x9F, 0x04), 'Amount, Other (Binary)', Parse.BYTES, None),
     ((0x9F, 0x05), 'Application Discretionary Data', Parse.BYTES, None),
     ((0x9F, 0x06), 'Application Identifier (AID) - terminal', Parse.BYTES, None),
-    ((0x9F, 0x07), 'Application Usage Control', Parse.BYTES, 'AUC'),
+    ((0x9F, 0x07), 'Application Usage Control', Parse.AUC, 'AUC'),
     ((0x9F, 0x08), 'Application Version Number', Parse.BYTES, None),
     ((0x9F, 0x09), 'Application Version Number', Parse.BYTES, None),
     ((0x9F, 0x0A), 'Application Selection Registered Proprietary Data', Parse.ASRPD, None),
@@ -145,6 +146,8 @@ ELEMENT_TABLE = [
     ((0x9F, 0x4D), 'Log Entry', Parse.BYTES, None),
     ((0x9F, 0x4E), 'Merchant Name and Location', Parse.BYTES, None),
     ((0x9F, 0x4F), 'Log Format', Parse.BYTES, None),
+    ((0x9F, 0x55), 'Issuer Authentication Flags', Parse.BYTES, None),
+    ((0x9F, 0x56), 'Issuer Proprietary Bitmap', Parse.BYTES, 'IPB'),
     ((0x9F, 0x5C), 'Cumulative Total Transaction Amount Upper Limit', Parse.INT, 'CTTAUL'),
     ((0x9F, 0x5D), 'Available Offline Spending Amount', Parse.INT, 'AOSA'),
     ((0x9F, 0x5E), 'Consecutive Transaction International Upper Limit', Parse.INT, 'CTIUL'),

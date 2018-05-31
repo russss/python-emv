@@ -5,3 +5,7 @@ class InvalidPINException(Exception):
 
 class MissingAppException(Exception):
     pass
+
+
+class CAPError(Exception):
+    pass

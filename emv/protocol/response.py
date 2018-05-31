@@ -71,7 +71,8 @@ class ErrorResponse(RAPDU, Exception):
         (0x6A, 0x83): 'Wrong parameter(s) P1 P2; record not found',
         (0x6A, 0x86): 'Inconsistent parameters P1-P2',
         (0x6A, 0x87): 'Lc inconsistent with P1-P2',
-        (0x6A, 0x88): 'Referenced data (data objects) not found'
+        (0x6A, 0x88): 'Referenced data (data objects) not found',
+        (0x6D, 0x00): 'Instruction code not supported or invalid'
     }
 
     def get_status(self):

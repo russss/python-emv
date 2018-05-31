@@ -121,10 +121,13 @@ def render_element(tag, value, redact=False):
     if redact and tag in SENSITIVE_TAGS:
         return '[REDACTED]'
 
-    if type(value).__name__ in ('TLV', 'DOL', 'TagList', 'ASRPD', 'CVMList'):
+    if type(value).__name__ in ('TLV', 'DOL', 'TagList', 'ASRPD', 'CVMList', 'AUC'):
         return repr(value)
 
-    if type(value) is list and len(value) == 0 or type(value[0]) is not int:
+    if value is None:
+        return 'None'
+
+    if type(value) is list and (len(value) == 0 or type(value[0]) is not int):
         return ",\n".join(render_element(tag, val, redact) for val in value)
 
     parse = ELEMENT_FORMAT.get(tag)
