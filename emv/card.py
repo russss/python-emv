@@ -39,16 +39,26 @@ class Card(object):
             raise MissingAppException(e)
         return res
 
+    def get_data_item(self, item, tag):
+        try:
+            res = self.tp.exchange(GetDataCommand(item))
+            return res.data[tag]
+        except ErrorResponse:
+            return None
+
     def get_metadata(self):
         data = {}
-        res = self.tp.exchange(GetDataCommand(GetDataCommand.PIN_TRY_COUNT))
-        data['pin_retries'] = res.data[(0x9F, 0x17)][0]
+        res = self.get_data_item(GetDataCommand.PIN_TRY_COUNT, (0x9F, 0x17))
+        if res:
+            data['pin_retries'] = res[0]
 
-        res = self.tp.exchange(GetDataCommand(GetDataCommand.ATC))
-        data['atc'] = decode_int(res.data[(0x9F, 0x36)])
+        res = self.get_data_item(GetDataCommand.ATC, (0x9F, 0x36))
+        if res:
+            data['atc'] = decode_int(res)
 
-        res = self.tp.exchange(GetDataCommand(GetDataCommand.LAST_ONLINE_ATC))
-        data['last_online_atc'] = decode_int(res.data[(0x9F, 0x13)])
+        res = self.get_data_item(GetDataCommand.LAST_ONLINE_ATC, (0x9F, 0x13))
+        if res:
+            data['last_online_atc'] = decode_int(res)
 
         return data
 

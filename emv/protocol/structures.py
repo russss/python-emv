@@ -36,14 +36,14 @@ class TLV(dict):
         if len(data) < 3:
             # A valid TLV record is at least three bytes, anything less is probably a bug.
             # I've seen some cards present this (with a TLV of simply [0x61]), so silently ignore.
-            log.warn("Invalid TLV - too short: %s", data)
+            log.info("Invalid TLV - too short: %s", data)
             return data
 
         while i < len(data):
             tag, tag_len = read_tag(data[i:])
             i += tag_len
             if len(data) <= i:
-                log.warn("Invalid TLV - read beyond end of buffer at %s: %s", tag, data)
+                log.info("Invalid TLV - read beyond end of buffer at %s: %s", tag, data)
                 return data
             length = data[i]
             i += 1
