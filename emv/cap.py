@@ -49,7 +49,7 @@ def get_arqc_req(app_data, value=None, challenge=None):
     if value is not None:
         # If a monetary value is provided, it goes in the "Amount, Authorised"
         # field.
-        data[Tag((0x9F, 0x02))] = hex_int(int(float(value) * 100))
+        data[Tag((0x9F, 0x02))] = hex_int(int(round(float(value) * 100, 0)))
 
     return GenerateApplicationCryptogramCommand(GenerateApplicationCryptogramCommand.ARQC,
                                                 cdol1.serialise(data))
@@ -62,7 +62,7 @@ def get_cap_value(response):
         for a subset of cards.
 
         The proper way to do this is to use the Issuer Proprietary Bitmap from the
-        application data response.
+        application data response. Most UK issuers seem to use the same IPB though.
 
         c.f. https://github.com/zoobab/EMVCAP/blob/master/EMVCAPcore.py#L507
     '''
