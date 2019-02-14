@@ -12,7 +12,7 @@ class MockConnection(object):
         self.responses = responses
         self.requests = []
 
-    def connect(self):
+    def connect(self, protocol=None):
         pass
 
     def getProtocol(self):
