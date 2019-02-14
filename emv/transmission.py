@@ -13,7 +13,7 @@ class TransmissionProtocol(object):
         ''' Connection should be a pyscard connection. '''
         self.log = logging.getLogger(__name__)
         self.connection = connection
-        self.connection.connect()
+        self.connection.connect(connection.T0_protocol)
         assert connection.getProtocol() == connection.T0_protocol
         self.log.info("Connected to reader")
 
