@@ -20,13 +20,22 @@ class Card(object):
         return self.tp.exchange(SelectCommand(file_identifier=[0x3F, 0x00]))
 
     def list_applications(self):
+        ''' List applications on the card '''
         res = self.tp.exchange(SelectCommand('1PAY.SYS.DDF01'))
         sfi = res.data[Tag.FCI][Tag.FCI_PROP][Tag.SFI][0]
-        res = self.tp.exchange(ReadCommand(1, sfi))
-        apps = res.data[Tag.RECORD][Tag.APP]
+        apps = []
 
-        if type(apps) is not list:
-            apps = [apps]
+        # Apps may be stored in different records, so iterate through records
+        # until we hit an error
+        for i in range(1, 31):
+            try:
+                res = self.read_record(i, sfi)
+            except ErrorResponse:
+                break
+            new_apps = res.data[Tag.RECORD][Tag.APP]
+            if type(new_apps) is not list:
+                new_apps = [new_apps]
+            apps += new_apps
         return apps
 
     def read_record(self, record_number, sfi=None):
