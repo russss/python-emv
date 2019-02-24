@@ -99,11 +99,9 @@ class Card(object):
         if len(apps) == 0:
             raise MissingAppException("No apps on card")
 
-        # We're selecting the last app on the card here, which on Barclays
-        # cards seems to always be the Barclays one.
-        #
-        # It would be good to work out what logic to use to work out
-        # which app is responsible for CAP.
+        # We're selecting the last app on the card here, which seems be the correct
+        # (bank-specific) one. If this isn't always the case, it may be better to
+        # select the app with ADF [A0 00 00 00 03 80 02].
         self.select_application(apps[-1][Tag.ADF_NAME])
 
         # Get Processing Options starts the transaction on the card and
