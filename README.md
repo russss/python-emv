@@ -30,6 +30,18 @@ card in, and run:
 
 If all goes well, you should see some data about your card.
 
+Warning
+-------
+
+Although this tool has been relatively well tested, it's possible to block
+or even damage your card, as well as get in trouble with your card issuer.
+Please make sure you understand the risks.
+
+Commands marked in the `--help` output with [!] will initiate a transaction
+on the card, resulting in a permanent change to the card's internal state
+which could potentially be detected by your card issuer, particularly if you
+initiate many transactions.
+
 Command Line
 ------------
 
@@ -37,6 +49,15 @@ This library ships with `emvtool` - a simple command-line tool for testing
 and CAP password generation. To fetch some card metadata, run:
 
     emvtool info
+
+If you have more than one smartcard reader (or smartcard-like devices, such as a YubiKey)
+connected, you may have to select a specific reader. List all the readers with:
+
+    emvtool readers
+
+Then use the `-r` option to select the specific reader ID, e.g.:
+
+    emvtool -r 1 info
 
 To generate an EMV CAP one-time passcode:
 

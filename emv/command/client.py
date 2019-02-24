@@ -54,8 +54,8 @@ card issuer. Please make sure you understand the risks.
 
 Commands marked with [!] will initiate a transaction on the card,
 resulting in a permanent change to the card's internal state which
-could be detected by your card issuer, particularly if you initiate
-many transactions.
+could potentially be detected by your card issuer, particularly if
+you initiate many transactions.
 """)
 @click.option('--reader', '-r', type=int, metavar="READER", default=0,
               help="the reader to use (default 0)")
@@ -98,7 +98,7 @@ def render_app(card, df, redact):
                 if Tag.RECORD not in rec:
                     break
                 click.echo(as_table(rec[Tag.RECORD], 'File: %s,%s' % (i, j), redact=redact))
-        except ErrorResponse as e:
+        except ErrorResponse:
             continue
 
 
@@ -149,7 +149,7 @@ def cap(ctx, challenge, amount):
     card = get_reader(ctx.obj['reader'])
     try:
         click.echo(card.generate_cap_value(ctx.obj['pin'], challenge=challenge, value=amount))
-    except InvalidPINException as e:
+    except InvalidPINException:
         click.secho("Invalid PIN", fg='red')
         sys.exit(1)
     except CAPError as e:
