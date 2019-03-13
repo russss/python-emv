@@ -55,16 +55,10 @@ def get_arqc_req(app_data, value=None, challenge=None):
                                                 cdol1.serialise(data))
 
 
-def get_cap_value(response):
+def get_cap_value(response, ipb):
     ''' Generate a CAP value from the ARQC response.
-
-        This algorithm is the one used by barclays-pinsentry.c, but this will only work
-        for a subset of cards.
-
-        The proper way to do this is to use the Issuer Proprietary Bitmap from the
-        application data response. Most UK issuers seem to use the same IPB though.
-
-        c.f. https://github.com/zoobab/EMVCAP/blob/master/EMVCAPcore.py#L507
+        This is the 'proper way' to do it, using the Issuer Proprietary Bitmap from the
+        application data response.
     '''
 
     if Tag.RMTF1 in response.data:
@@ -76,14 +70,34 @@ def get_cap_value(response):
     else:
         raise CAPError("Unknown response type in ARQC response: %s" % response.data)
 
-    atc = data[Tag.ATC]       # Application Transaction Counter
-    ac = data[(0x9F, 0x26)]   # Application Cryptogram
+    # IPB acts as a binary mask for the response, where the '0' positions are
+    # ignored, and the remaining '1' positions are concatenated, for example:
+    # Response: 00101101110100101010010101010101001
+    # IPB:      00000111100000000111111110000000000
+    # Result:        1011        00101010
+    # Concat'd: 101100101010
+    # Decimal:  2858
 
-    # The bitshift magic below *probably* corresponds to the IPB from Barclays cards:
-    # CID = I, ATC = A, AC = C, IAD = D
-    #
-    # II AA AA CC CC CC CC CC CC CC CC DD DD DD DD DD DD DD DD DD DD DD...
-    # 80 00 FF 00 00 00 00 00 01 FF FF 00 00 00 00 00 00 00
+    # Get response data into single list, in the same format as IPB
+    resp_data = [item for sublist in list(list(response.data.values())[0].values()) for item in sublist]
 
-    result = ((1 << 25) | (atc[1] << 17) | ((ac[5] & 0x01) << 16) | (ac[6] << 8) | ac[7])
-    return result
+    # Initialise empty string to hold binary result of masking process
+    binary_string = ''
+
+    # Iterate through the items in the IPB mask (in reverse)
+    for i in reversed(range(0,len(ipb))):
+        # Get the values of data and mask for the current iteration
+        data_number = resp_data[i]
+        ipb_number = ipb[i]
+        # If the mask has some 1s in it
+        while ipb_number > 0:
+            # Check if the last digit in the binary representation of the mask is '1'
+            if ipb_number & 1:
+                # And if it is, prepend the last binary digit of the data to the binary string
+                binary_string = str(data_number & 1) + binary_string
+            # Bitshift both the data and the mask to the right by one bit
+            ipb_number >>= 1
+            data_number >>= 1
+
+    # And return the binary string converted to a decimal number
+    return int(binary_string, 2)
