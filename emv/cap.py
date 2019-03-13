@@ -54,8 +54,7 @@ def get_arqc_req(app_data, value=None, challenge=None):
     return GenerateApplicationCryptogramCommand(GenerateApplicationCryptogramCommand.ARQC,
                                                 cdol1.serialise(data))
 
-
-def get_cap_value(response, ipb):
+def get_cap_value(response, ipb, psn):
     ''' Generate a CAP value from the ARQC response.
         This is the 'proper way' to do it, using the Issuer Proprietary Bitmap from the
         application data response.
@@ -80,6 +79,10 @@ def get_cap_value(response, ipb):
 
     # Get response data into single list, in the same format as IPB
     resp_data = [item for sublist in list(list(response.data.values())[0].values()) for item in sublist]
+
+    # If the PAN Sequence Number is set, then prepend it to the response data
+    if psn is not None:
+        resp_data = psn + resp_data
 
     # Initialise empty string to hold binary result of masking process
     binary_string = ''
