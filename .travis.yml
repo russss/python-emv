@@ -4,15 +4,21 @@ python:
   - '3.5'
   - '3.6'
   - '3.7'
-install: 
-  - pip install pytest unittest2 black
-  - python ./setup.py develop
-script: 
-  - black --check .
-  - python3 -m pytest
-addons:
-  apt:
-    packages:
-      - build-essential
-      - swig
-      - libpcsclite-dev
+jobs:
+  include:
+    - stage: lint
+      python: 3.7
+      install: pip install black
+      script: black --check .
+    - stage: test
+      install: 
+        - pip install pytest unittest2
+        - python ./setup.py develop
+      script: 
+        - python3 -m pytest
+      addons:
+        apt:
+          packages:
+            - build-essential
+            - swig
+            - libpcsclite-dev
