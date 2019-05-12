@@ -21,7 +21,7 @@ def parse_element(tag, value):
     return value
 
 
-class TLV(dict):
+class TLV(OrderedDict):
     """ BER-TLV
         A serialisation format.
 
