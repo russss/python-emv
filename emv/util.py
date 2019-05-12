@@ -44,7 +44,7 @@ def format_bytes(data):
 
 
 def unformat_bytes(data):
-    data = re.split("\s+", data)
+    data = re.split(r"\s+", data)
     return [int(i, 16) for i in data]
 
 
