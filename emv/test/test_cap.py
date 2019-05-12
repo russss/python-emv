@@ -41,3 +41,9 @@ class TestCAP(TestCase):
         data = unformat_bytes('80 12 80 09 5F 0F 9D 37 98 E9 3F 12 9A 06 0A 0A 03 A4 90 00 90 00')
         res = RAPDU.unmarshal(data)
         self.assertEqual(get_cap_value(res), 46076570)
+
+    def test_pinsentry_2(self):
+        data = unformat_bytes('''77 1E 9F 27 01 80 9F 36 02 00 16 9F 26 08 29 9C C8 F1 0B 9B C8
+                                 30 9F 10 07 06 0B 0A 03 A4 90 00''')
+        res = RAPDU.unmarshal(data)
+        self.assertEqual(get_cap_value(res), 36554800)
