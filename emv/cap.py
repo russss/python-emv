@@ -54,10 +54,14 @@ def get_arqc_req(app_data, value=None, challenge=None):
     return GenerateApplicationCryptogramCommand(GenerateApplicationCryptogramCommand.ARQC,
                                                 cdol1.serialise(data))
 
+
 def get_cap_value(response, ipb, psn):
     ''' Generate a CAP value from the ARQC response.
-        This is the 'proper way' to do it, using the Issuer Proprietary Bitmap from the
-        application data response.
+
+        The ARQC response is traditionally a data structure returned to the terminal by the
+        card during a payment transaction. CAP (mis)uses it to generate an 8-digit one-time
+        code. This is done by bitwise masking the values in this structure with the Issuer
+        Proprietary Bitmap (IPB) provided by the card in the Application Data structure.
     '''
 
     if Tag.RMTF1 in response.data:
@@ -78,7 +82,7 @@ def get_cap_value(response, ipb, psn):
     # Decimal:  2858
 
     # Get response data into single list, in the same format as IPB
-    resp_data = [item for sublist in list(list(response.data.values())[0].values()) for item in sublist]
+    resp_data = [item for sublist in data.values() for item in sublist]
 
     # If the PAN Sequence Number is set, then prepend it to the response data
     if psn is not None:
@@ -88,7 +92,7 @@ def get_cap_value(response, ipb, psn):
     binary_string = ''
 
     # Iterate through the items in the IPB mask (in reverse)
-    for i in reversed(range(0,len(ipb))):
+    for i in reversed(range(0, min(len(ipb), len(resp_data)))):
         # Get the values of data and mask for the current iteration
         data_number = resp_data[i]
         ipb_number = ipb[i]

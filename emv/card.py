@@ -125,7 +125,7 @@ class Card(object):
         self.verify_pin(pin)
 
         resp = self.tp.exchange(get_arqc_req(app_data, challenge=challenge, value=value))
-        
+
         # Set default: don't use PAN Sequence Number
         psn = None
 
