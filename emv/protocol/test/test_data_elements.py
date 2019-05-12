@@ -1,11 +1,11 @@
 from __future__ import division, absolute_import, print_function, unicode_literals
+
 # coding=utf-8
 from unittest2 import TestCase
 from emv.protocol.data_elements import ELEMENT_TABLE
 
 
 class TestDataElements(TestCase):
-
     def test_data_elements(self):
         # Test uniqueness of the main element table
         seen_tags = set()

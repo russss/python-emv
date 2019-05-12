@@ -22,11 +22,11 @@ def parse_element(tag, value):
 
 
 class TLV(dict):
-    ''' BER-TLV
+    """ BER-TLV
         A serialisation format.
 
         Documented in EMV 4.3 Book 3 Annex B
-    '''
+    """
 
     @classmethod
     def unmarshal(cls, data):
@@ -47,7 +47,7 @@ class TLV(dict):
                 return data
             length = data[i]
             i += 1
-            value = data[i:i + length]
+            value = data[i : i + length]
 
             if is_constructed(tag[0]):
                 value = TLV.unmarshal(value)
@@ -69,8 +69,12 @@ class TLV(dict):
         vals = []
         for key, val in self.items():
             out = "\n%s: " % str(key)
-            if type(val) in (TLV, DOL) or \
-               type(val) is list and len(val) > 0 and type(val[0]) in (TLV, DOL):
+            if (
+                type(val) in (TLV, DOL)
+                or type(val) is list
+                and len(val) > 0
+                and type(val[0]) in (TLV, DOL)
+            ):
                 out += str(val)
             else:
                 out += render_element(key, val)
@@ -79,13 +83,13 @@ class TLV(dict):
 
 
 class ASRPD(dict):
-    ''' Application Selection Registered Proprietary Data list.
+    """ Application Selection Registered Proprietary Data list.
 
         An almost-TLV structure used in the FCI Discretionary Data object.
         The tags here are fixed-length.
 
         https://www.emvco.com/wp-content/uploads/2017/05/BookB_Entry_Point_Specification_v2_6_20160809023257319.pdf
-    '''
+    """
 
     @classmethod
     def unmarshal(cls, data):
@@ -95,13 +99,13 @@ class ASRPD(dict):
 
         while i < len(data):
             # 2 bytes Proprietary Data Identifier
-            pdi = "%02i%02i" % tuple(data[i:i+2])
+            pdi = "%02i%02i" % tuple(data[i : i + 2])
             i += 2
 
             length = data[i]
             i += 1
 
-            asrpd[pdi] = data[i:i+length]
+            asrpd[pdi] = data[i : i + length]
             i += length
 
         return asrpd
@@ -109,25 +113,25 @@ class ASRPD(dict):
     def __repr__(self):
         ret = "<ASRPD: "
         for pdi, value in self.items():
-            if pdi == '0001':
-                ret += 'Electronic Product Identification: '
-                ret += EPC_PRODUCT_ID.get(value[0], 'Unknown')
-        ret += '>'
+            if pdi == "0001":
+                ret += "Electronic Product Identification: "
+                ret += EPC_PRODUCT_ID.get(value[0], "Unknown")
+        ret += ">"
         return ret
 
 
 class DOL(OrderedDict):
-    ''' Data Object List.
+    """ Data Object List.
         This is sent by the card to the terminal to define a structure for
         future transactions, consisting of an ordered list of data elements and lengths.
 
         It's essentially a TLV object without the values.
 
-        EMV 4.3 Book 3 section 5.4 '''
+        EMV 4.3 Book 3 section 5.4 """
 
     @classmethod
     def unmarshal(cls, data):
-        ''' Construct a DOL object from the binary representation (as a list of bytes) '''
+        """ Construct a DOL object from the binary representation (as a list of bytes) """
         dol = cls()
         i = 0
         while i < len(data):
@@ -139,27 +143,29 @@ class DOL(OrderedDict):
         return dol
 
     def size(self):
-        ''' Total size of the resulting structure in bytes. '''
+        """ Total size of the resulting structure in bytes. """
         return sum(self.values())
 
     def unserialise(self, data):
-        ''' Parse an input stream of bytes and return a TLV object. '''
+        """ Parse an input stream of bytes and return a TLV object. """
         if self.size() != len(data):
-            raise Exception("Incorrect input size (expecting %s bytes, got %s)" % (
-                            self.size(), len(data)))
+            raise Exception(
+                "Incorrect input size (expecting %s bytes, got %s)"
+                % (self.size(), len(data))
+            )
 
         tlv = TLV()
         i = 0
         for tag, length in self.items():
-            tlv[tag] = data[i:i + length]
+            tlv[tag] = data[i : i + length]
             i += length
 
         return tlv
 
     def serialise(self, data):
-        ''' Given a dictionary of tag -> value, write this data out
+        """ Given a dictionary of tag -> value, write this data out
             according to the DOL. Missing data will be null.
-        '''
+        """
         output = []
         for tag, length in self.items():
             value = data.get(tag, [0x0] * length)
@@ -175,7 +181,7 @@ class DOL(OrderedDict):
 
 
 class TagList(list):
-    ''' A list of tags. '''
+    """ A list of tags. """
 
     @classmethod
     def unmarshal(cls, data):
@@ -189,7 +195,7 @@ class TagList(list):
 
 
 class CVMRule(object):
-    ''' EMV 4.3 book 3 appendix C3 '''
+    """ EMV 4.3 book 3 appendix C3 """
 
     RULES = {
         # 0b00000000: "Fail CVM processing",
@@ -199,20 +205,20 @@ class CVMRule(object):
         0b00000100: "Enciphered PIN verification performed by ICC",
         0b00000101: "Enciphered PIN verification performed by ICC and signature (paper)",
         0b00011110: "Signature (paper)",
-        0b00111111: "No CVM required"
+        0b00111111: "No CVM required",
     }
 
     CODES = {
-        0: 'Always',
-        1: 'If unattended cash',
-        2: 'If not unattended cash and not manual cash and not purchase with cashback',
-        3: 'If terminal supports the CVM',
-        4: 'If manual cash',
-        5: 'If purchase with cashback',
-        6: 'If transaction is in the application currency and is under X value',
-        7: 'If transaction is in the application currency and is over X value',
-        8: 'If transaction is in the application currency and is under Y value',
-        9: 'If transaction is in the application currency and is over Y value'
+        0: "Always",
+        1: "If unattended cash",
+        2: "If not unattended cash and not manual cash and not purchase with cashback",
+        3: "If terminal supports the CVM",
+        4: "If manual cash",
+        5: "If purchase with cashback",
+        6: "If transaction is in the application currency and is under X value",
+        7: "If transaction is in the application currency and is over X value",
+        8: "If transaction is in the application currency and is under Y value",
+        9: "If transaction is in the application currency and is over Y value",
     }
 
     @classmethod
@@ -236,20 +242,20 @@ class CVMRule(object):
 
     def __repr__(self):
         if self.fail_if_unsuccessful():
-            fail = '. Else, fail verification.'
+            fail = ". Else, fail verification."
         else:
-            fail = ''
+            fail = ""
 
         return "%s, %s%s" % (self.code_repr(), self.rule_repr(), fail)
 
 
 class CVMList(object):
-    '''CVM is a tiny language for the card to dictate when the terminal should fail the
+    """CVM is a tiny language for the card to dictate when the terminal should fail the
         transaction or force it online.
 
         It doesn't seem to get much interesting use on many of the cards I've seen though.
 
-    EMV 4.3 book 3 section 10.5 '''
+    EMV 4.3 book 3 section 10.5 """
 
     def __init__(self):
         self.x = None
@@ -269,33 +275,33 @@ class CVMList(object):
 
         i = 8
         while i < len(data):
-            cvm_list.rules.append(CVMRule.unmarshal(data[i], data[i+1]))
+            cvm_list.rules.append(CVMRule.unmarshal(data[i], data[i + 1]))
             i += 2
 
         return cvm_list
 
     def __repr__(self):
-        return "<CVM List x: %s, y: %s, rules: %s>" % (self.x, self.y,
-                                                       "; ".join([repr(r) for r in self.rules]))
+        return "<CVM List x: %s, y: %s, rules: %s>" % (
+            self.x,
+            self.y,
+            "; ".join([repr(r) for r in self.rules]),
+        )
 
 
 class AUC(object):
 
     B1_FIELDS = [
-        'Valid for domestic cash transactions',
-        'Valid for international cash transactions',
-        'Valid for domestic goods',
-        'Valid for international goods',
-        'Valid for domestic services',
-        'Valid for international services',
-        'Valid at ATMs',
-        'Valid at terminals other than ATMs'
+        "Valid for domestic cash transactions",
+        "Valid for international cash transactions",
+        "Valid for domestic goods",
+        "Valid for international goods",
+        "Valid for domestic services",
+        "Valid for international services",
+        "Valid at ATMs",
+        "Valid at terminals other than ATMs",
     ]
 
-    B2_FIELDS = [
-        'Domestic cashback allowed',
-        'International cashback allowed'
-    ]
+    B2_FIELDS = ["Domestic cashback allowed", "International cashback allowed"]
 
     @classmethod
     def unmarshal(cls, data):
@@ -319,4 +325,4 @@ class AUC(object):
         return uses
 
     def __repr__(self):
-        return '<AUC: %s>' % ', '.join(self.get_uses())
+        return "<AUC: %s>" % ", ".join(self.get_uses())

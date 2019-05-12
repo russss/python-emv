@@ -5,9 +5,11 @@ python:
   - '3.6'
   - '3.7'
 install: 
-  - pip install pytest unittest2
+  - pip install pytest unittest2 black
   - python ./setup.py develop
-script: python3 -m pytest
+script: 
+  - black --check .
+  - python3 -m pytest
 addons:
   apt:
     packages:

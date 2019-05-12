@@ -1,4 +1,3 @@
-
 class InvalidPINException(Exception):
     pass
 

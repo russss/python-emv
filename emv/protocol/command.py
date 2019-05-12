@@ -9,22 +9,22 @@ def assert_valid_byte(val):
 
 
 class CAPDU(object):
-    ''' Command APDU.
+    """ Command APDU.
 
         Defined in: EMV 4.3 Book 1 sections:
             - 9.4.1
             - 11.1
-    '''
+    """
 
     # Map the class name of the command to the CLA,INS bytes.
     # This is derived from EMV 4.3 Book 3 section 6.3.2.
     COMMANDS = {
-        'SelectCommand': [0x00, 0xA4],
-        'VerifyCommand': [0x00, 0x20],
-        'ReadCommand': [0x00, 0xB2],
-        'GetDataCommand': [0x80, 0xCA],
-        'GenerateApplicationCryptogramCommand': [0x80, 0xAE],
-        'GetProcessingOptions': [0x80, 0xA8]
+        "SelectCommand": [0x00, 0xA4],
+        "VerifyCommand": [0x00, 0x20],
+        "ReadCommand": [0x00, 0xB2],
+        "GetDataCommand": [0x80, 0xCA],
+        "GenerateApplicationCryptogramCommand": [0x80, 0xAE],
+        "GetProcessingOptions": [0x80, 0xA8],
     }
 
     def marshal(self):
@@ -61,7 +61,7 @@ class CAPDU(object):
         obj.p2 = data[3]
         if len(data) > 5:
             obj.lc = data[4]
-            obj.data = data[5:obj.lc + 5]
+            obj.data = data[5 : obj.lc + 5]
         if len(data) > obj.lc + 5:
             obj.le = data[-1]
         else:
@@ -69,16 +69,22 @@ class CAPDU(object):
         return obj
 
     def __repr__(self):
-        return '<Command[%s] P1: %02x, P2: %02x, data: %s, Le: %02x>' % (
-            self.name, self.p1, self.p2, format_bytes(self.data), self.le or 0)
+        return "<Command[%s] P1: %02x, P2: %02x, data: %s, Le: %02x>" % (
+            self.name,
+            self.p1,
+            self.p2,
+            format_bytes(self.data),
+            self.le or 0,
+        )
 
 
 class SelectCommand(CAPDU):
-    ''' Select an application or file on the card.
+    """ Select an application or file on the card.
 
         Defined in: EMV 4.3 Book 1 section 11.3
-    '''
-    name = 'Select'
+    """
+
+    name = "Select"
 
     def __init__(self, file_path=None, file_identifier=None, next_occurrence=False):
         if file_path is not None:
@@ -99,17 +105,23 @@ class SelectCommand(CAPDU):
         self.le = 0x00
 
     def __repr__(self):
-        data = ' '.join(['%02x' % i for i in self.data])
-        return '<Command[%s] P1: %02x, P2: %02x, File name: %s, Le: %02x>' % (
-            self.name, self.p1, self.p2, data.upper(), self.le or 0)
+        data = " ".join(["%02x" % i for i in self.data])
+        return "<Command[%s] P1: %02x, P2: %02x, File name: %s, Le: %02x>" % (
+            self.name,
+            self.p1,
+            self.p2,
+            data.upper(),
+            self.le or 0,
+        )
 
 
 class ReadCommand(CAPDU):
-    ''' Read a record from an application or file.
+    """ Read a record from an application or file.
 
         Defined in: EMV 4.3 Book 1 section 11.2
-    '''
-    name = 'Read'
+    """
+
+    name = "Read"
 
     P2_RECORD_NUMBER = 0x04  # P1 is a record number
 
@@ -128,11 +140,12 @@ class ReadCommand(CAPDU):
 
 
 class GetDataCommand(CAPDU):
-    ''' Get miscellaneous data
+    """ Get miscellaneous data
 
         Defined in: EMV 4.3 Book 3 section 6.5.7
-    '''
-    name = 'Get Data'
+    """
+
+    name = "Get Data"
 
     ATC = (0x9F, 0x36)
     LAST_ONLINE_ATC = (0x9F, 0x13)
@@ -148,11 +161,12 @@ class GetDataCommand(CAPDU):
 
 
 class VerifyCommand(CAPDU):
-    ''' Verify the PIN.
+    """ Verify the PIN.
 
         Defined in: EMV 4.3 Book 3 section 6.5.12
-    '''
-    name = 'Verify'
+    """
+
+    name = "Verify"
 
     PIN_PLAINTEXT = 0b10000000
     PIN_ENCIPHERED = 0b10001000
@@ -165,17 +179,18 @@ class VerifyCommand(CAPDU):
 
         # Fields in this data structure are split on a nibble boundary,
         # so assemble as a hex string and decode
-        data = ('2%x%s' % (len(str(pin)), pin)).encode('ascii')
+        data = ("2%x%s" % (len(str(pin)), pin)).encode("ascii")
         while len(data) < 16:
-            data += b'f'
-        self.data = codecs.decode(data, 'hex')
+            data += b"f"
+        self.data = codecs.decode(data, "hex")
 
         self.le = 0x00
 
 
 class GenerateApplicationCryptogramCommand(CAPDU):
-    ''' Defined in: EMV 4.3 Book 3 section 6.5.5 '''
-    name = 'Generate Application Cryptogram'
+    """ Defined in: EMV 4.3 Book 3 section 6.5.5 """
+
+    name = "Generate Application Cryptogram"
 
     # Table 12
     AAC = 0b00000000
@@ -196,8 +211,9 @@ class GenerateApplicationCryptogramCommand(CAPDU):
 
 
 class GetProcessingOptions(CAPDU):
-    ''' Defined in: EMV 4.3 Book 3 section 6.5.8 '''
-    name = 'Get Processing Opts'
+    """ Defined in: EMV 4.3 Book 3 section 6.5.8 """
+
+    name = "Get Processing Opts"
 
     def __init__(self, pdol=None):
         self.p1 = 0x00

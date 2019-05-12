@@ -1,13 +1,11 @@
-''' EMV Chip Authentication Program, a.k.a DPA, a.k.a Pinsentry.
+""" EMV Chip Authentication Program, a.k.a DPA, a.k.a Pinsentry.
 
     There is no public specification for the EMV CAP "standard". The code in this
-    module is based on a number of other hacky projects. It works for Barclays
-    cards in the UK. It will probably work for other UK cards as there is a
-    UK-wide standard.
+    module is based on a number of other hacky projects. It works for most UK cards.
 
     I make no guarantees for non-UK cards as I'm aware that certain banks have
     made their own "customisations" to EMV CAP.
-'''
+"""
 from .protocol.data import Tag
 from .protocol.command import GenerateApplicationCryptogramCommand
 from .protocol.structures import DOL
@@ -16,29 +14,31 @@ from .util import hex_int
 
 # Older cards will respond with an opaque, packed response to the
 # application cryptogram request. This DOL lets us deserialise it.
-GAC_RESPONSE_DOL = DOL([
-    (Tag((0x9F, 0x27)), 1),  # Cryptogram Information Data
-    (Tag((0x9F, 0x36)), 2),  # Application Transaction Counter
-    (Tag((0x9F, 0x26)), 8),  # Application Cryptogram
-    (Tag((0x9F, 0x10)), 7),  # Issuer Application Data
-    (Tag(0x90), 0)
-])
+GAC_RESPONSE_DOL = DOL(
+    [
+        (Tag((0x9F, 0x27)), 1),  # Cryptogram Information Data
+        (Tag((0x9F, 0x36)), 2),  # Application Transaction Counter
+        (Tag((0x9F, 0x26)), 8),  # Application Cryptogram
+        (Tag((0x9F, 0x10)), 7),  # Issuer Application Data
+        (Tag(0x90), 0),
+    ]
+)
 
 
 def get_arqc_req(app_data, value=None, challenge=None):
-    ''' Generate the data to send with the generate application cryptogram request.
+    """ Generate the data to send with the generate application cryptogram request.
         This data is in the format requested by the card in the CDOL1 field of the
         application data.
 
         This is the algorithm that barclays_pinsentry.c uses.
-    '''
+    """
     if Tag.CDOL1 not in app_data:
         raise CAPError("Application data doesn't include CDOL1 field: %r" % app_data)
 
     cdol1 = app_data[Tag.CDOL1]
     data = {
-        Tag(0x9A): [0x01, 0x01, 0x01],              # Transaction Date
-        Tag(0x95): [0x80, 0x00, 0x00, 0x00, 0x00]   # Terminal Verification Results
+        Tag(0x9A): [0x01, 0x01, 0x01],  # Transaction Date
+        Tag(0x95): [0x80, 0x00, 0x00, 0x00, 0x00],  # Terminal Verification Results
     }
 
     if challenge is not None:
@@ -51,18 +51,19 @@ def get_arqc_req(app_data, value=None, challenge=None):
         # field.
         data[Tag((0x9F, 0x02))] = hex_int(int(round(float(value) * 100, 0)))
 
-    return GenerateApplicationCryptogramCommand(GenerateApplicationCryptogramCommand.ARQC,
-                                                cdol1.serialise(data))
+    return GenerateApplicationCryptogramCommand(
+        GenerateApplicationCryptogramCommand.ARQC, cdol1.serialise(data)
+    )
 
 
 def get_cap_value(response, ipb, psn):
-    ''' Generate a CAP value from the ARQC response.
+    """ Generate a CAP value from the ARQC response.
 
         The ARQC response is traditionally a data structure returned to the terminal by the
         card during a payment transaction. CAP (mis)uses it to generate an 8-digit one-time
         code. This is done by bitwise masking the values in this structure with the Issuer
         Proprietary Bitmap (IPB) provided by the card in the Application Data structure.
-    '''
+    """
 
     if Tag.RMTF1 in response.data:
         # Response type 1, deserialise it with our static DOL.
@@ -89,7 +90,7 @@ def get_cap_value(response, ipb, psn):
         resp_data = psn + resp_data
 
     # Initialise empty string to hold binary result of masking process
-    binary_string = ''
+    binary_string = ""
 
     # Iterate through the items in the IPB mask (in reverse)
     for i in reversed(range(0, min(len(ipb), len(resp_data)))):
