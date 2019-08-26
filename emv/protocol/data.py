@@ -54,6 +54,24 @@ def read_tag(data):
     return tag, i
 
 
+def read_length(data):
+    """ Read length from a list of bytes, starting at the first byte.
+        Returns the length, plus the number of bytes read from the list.
+
+        EMV 4.3 Book 3 Annex B2
+    """
+    i = 0
+    length = data[i]
+    i += 1
+    if length & 0x80:
+        length_bytes_count = length & 0x7F
+        length = 0
+        for j in range(length_bytes_count):
+            length = (length << 8) + data[i + j]
+        i += length_bytes_count
+    return length, i
+
+
 @total_ordering
 class Tag(object):
     """ Represents a data tag. Provides ordering and pretty rendering."""
