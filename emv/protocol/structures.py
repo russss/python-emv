@@ -1,5 +1,12 @@
 from collections import OrderedDict
-from .data import ELEMENT_FORMAT, render_element, read_tag, read_length, is_constructed, Tag
+from .data import (
+    ELEMENT_FORMAT,
+    render_element,
+    read_tag,
+    read_length,
+    is_constructed,
+    Tag,
+)
 from .data_elements import Parse, EPC_PRODUCT_ID
 from ..util import decode_int, bit_set
 import logging
