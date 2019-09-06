@@ -31,6 +31,23 @@ class TestTLV(TestCase):
         tlv = TLV.unmarshal(data)
         self.assertEqual(tlv[(0x9F, 0x17)][0], 3)
 
+    def test_length_parsing(self):
+        data = unformat_bytes("42 01 03")
+        tlv = TLV.unmarshal(data)
+        self.assertEqual(tlv[0x42][0], 3)
+
+        data = unformat_bytes("42 81 01 07")
+        tlv = TLV.unmarshal(data)
+        self.assertEqual(tlv[0x42][0], 7)
+
+        data = unformat_bytes("42 82 00 01 07")
+        tlv = TLV.unmarshal(data)
+        self.assertEqual(tlv[0x42][0], 7)
+
+        data = unformat_bytes("42 83 00 00 01 07")
+        tlv = TLV.unmarshal(data)
+        self.assertEqual(tlv[0x42][0], 7)
+
     def test_duplicate_tags(self):
         # An ADF entry with a number of records:
         data = unformat_bytes(
