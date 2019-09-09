@@ -1,5 +1,12 @@
 from collections import OrderedDict
-from .data import ELEMENT_FORMAT, render_element, read_tag, is_constructed, Tag
+from .data import (
+    ELEMENT_FORMAT,
+    render_element,
+    read_tag,
+    read_length,
+    is_constructed,
+    Tag,
+)
 from .data_elements import Parse, EPC_PRODUCT_ID
 from ..util import decode_int, bit_set
 import logging
@@ -45,8 +52,10 @@ class TLV(OrderedDict):
             if len(data) <= i:
                 log.info("Invalid TLV - read beyond end of buffer at %s: %s", tag, data)
                 return tlv
-            length = data[i]
-            i += 1
+
+            length, length_len = read_length(data[i:])
+            i += length_len
+
             value = data[i : i + length]
 
             if is_constructed(tag[0]):
