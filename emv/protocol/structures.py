@@ -51,7 +51,7 @@ class TLV(OrderedDict):
             i += tag_len
             if len(data) <= i:
                 log.info("Invalid TLV - read beyond end of buffer at %s: %s", tag, data)
-                return data
+                return tlv
 
             length, length_len = read_length(data[i:])
             i += length_len

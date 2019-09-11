@@ -45,10 +45,10 @@ def read_tag(data):
     if is_two_byte(data[i]):
         i += 1
         tag += [data[i]]
-        i += 1
         while len(data) > i and is_continuation(data[i]):
-            tag += [data[i]]
             i += 1
+            tag += [data[i]]
+        i += 1
     else:
         i += 1
     return tag, i
