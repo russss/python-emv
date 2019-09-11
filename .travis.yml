@@ -1,28 +1,36 @@
 dist: xenial
 language: python
 python:
-  - '3.5'
-  - '3.6'
-  - '3.7'
+- '3.5'
+- '3.6'
+- '3.7'
 install:
-  - pip install pytest unittest2
-  - python ./setup.py develop
-script: 
-  - python3 -m pytest
+- pip install pytest unittest2
+- python ./setup.py develop
+script:
+- python3 -m pytest
 addons:
   apt:
     packages:
-      - build-essential
-      - swig
-      - libpcsclite-dev
+    - build-essential
+    - swig
+    - libpcsclite-dev
 stages:
-  - lint
-  - test
+- lint
+- test
 jobs:
   include:
-    - stage: lint
-      python: 3.7
-      install: pip install black flake8
-      script: 
-        - black --check ./emv
-        - flake8 ./emv
+  - stage: lint
+    python: 3.7
+    install: pip install black flake8
+    script:
+    - black --check ./emv
+    - flake8 ./emv
+deploy:
+  provider: pypi
+  user: russss
+  password:
+    secure: X8BXsW6rzmPWC/j3vX64pe5E9HCnspJWcZdhFDN+wvf7eZ9nLqfs0/VYVSKcEs54dP7vckqtWwQlYO1LeEwaPReZPCg7xPK5kxF65vXqAO8vSwTCYYpjVxdj570YSpAnSagq/2l+aqVFJ+7b91IaEdVGjEaX0mkL+rZphpdSl+FbIpQEgqHchbqPstfAAtuLdxY/Xq9YlLhPPhouDFvsuE22wqAnaqQRQrpxLzZoqKk8/vfawXvMxGaYQVLCdBrUAfzdKHqj8JCgKxnl8G13yglTJXkMY6wAo//tg7snjEVfQucDsnp8HNQXIKkEdUencAnXzom0If+liZOjYunENFk61XYsYym603L8s2DcrRPn9YaoFchAEwZtf2slkzJ3LuIY9/qmiWZh44xozb0Aw8l9RL1s4BX/i1H0vRCCVSQNgBewf0G6AVX7OSIWWYct9i/hf6GzmO6kSh7AIXe8GnsFRe8J0CXQN0c2R4d7cn0+Im+sisOj/nwpSZHoRp05aurShxTlo39bBfmnE6+HLlGniJotUtWIU3RnVPDnS4TQn+8Pbw2ZxFHp9M5rMLT5urA0a10h6fCSwbZ17l0pO6ksWc4GIVi4vfDJgnR3C6IxI81wITUetjorldOXp87BMPSDRdyTvG+EoJF5GcnWWKZ6jiOfe9JmCmKhFdD6BcQ=
+  on:
+    tags: true
+  skip_existing: true
