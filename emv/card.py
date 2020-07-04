@@ -25,10 +25,50 @@ class Card(object):
         """ Get the master file (MF). """
         return self.tp.exchange(SelectCommand(file_identifier=[0x3F, 0x00]))
 
+    def get_pse(self):
+        """ Get the Payment System Environment (PSE) file """
+        return self.tp.exchange(SelectCommand("1PAY.SYS.DDF01"))
+
     def list_applications(self):
         """ List applications on the card """
-        res = self.tp.exchange(SelectCommand("1PAY.SYS.DDF01"))
-        sfi = res.data[Tag.FCI][Tag.FCI_PROP][Tag.SFI][0]
+        try:
+            return self._list_applications_sfi()
+        except ErrorResponse:
+            return self._list_applications_static_aid()
+
+    def _list_applications_static_aid(self):
+        """ Try to find applications by trying to select a static application ID.
+            This is an older method of app discovery which is still used by some cards.
+        """
+        STATIC_AIDS = [
+            [0xA0, 0x00, 0x00, 0x00, 0x25, 0x01],  # Amex
+            [0xA0, 0x00, 0x00, 0x00, 0x03, 0x10, 0x10],  # Visa
+            [0xA0, 0x00, 0x00, 0x00, 0x04, 0x10, 0x10],  # Mastercard
+        ]
+        apps = []
+        for aid in STATIC_AIDS:
+            try:
+                res = self.tp.exchange(SelectCommand(aid))
+
+                # This is a bit of a hack, we transform this response into something which looks
+                # like the result from the SFI method, so that callers of list_applications get a
+                # consistent result.
+                apps.append(TLV({
+                    Tag.ADF_NAME: res.data[Tag.FCI][Tag.DF],
+                    Tag.APP_LABEL: res.data[Tag.FCI][Tag.FCI_PROP][Tag.APP_LABEL]
+                }))
+            except ErrorResponse:
+                continue
+        return apps
+
+    def _list_applications_sfi(self):
+        """ List applications on the card using the SFI method.
+
+            This fetches the SFI (short file identifier) from the PSE (Payment System Environment)
+            file, and uses it to locate all the apps on the card.
+        """
+        pse = self.get_pse()
+        sfi = pse.data[Tag.FCI][Tag.FCI_PROP][Tag.SFI][0]
         apps = []
 
         # Apps may be stored in different records, so iterate through records
