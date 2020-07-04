@@ -53,10 +53,16 @@ class Card(object):
                 # This is a bit of a hack, we transform this response into something which looks
                 # like the result from the SFI method, so that callers of list_applications get a
                 # consistent result.
-                apps.append(TLV({
-                    Tag.ADF_NAME: res.data[Tag.FCI][Tag.DF],
-                    Tag.APP_LABEL: res.data[Tag.FCI][Tag.FCI_PROP][Tag.APP_LABEL]
-                }))
+                apps.append(
+                    TLV(
+                        {
+                            Tag.ADF_NAME: res.data[Tag.FCI][Tag.DF],
+                            Tag.APP_LABEL: res.data[Tag.FCI][Tag.FCI_PROP][
+                                Tag.APP_LABEL
+                            ],
+                        }
+                    )
+                )
             except ErrorResponse:
                 continue
         return apps
