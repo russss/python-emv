@@ -131,7 +131,13 @@ def info(ctx):
     apps = card.list_applications()
 
     click.secho("\n1PAY.SYS.DDF01 (Index of apps for chip payments)", bold=True)
-    render_app(card, "1PAY.SYS.DDF01", redact)
+    try:
+        render_app(card, "1PAY.SYS.DDF01", redact)
+    except MissingAppException:
+        click.secho(
+            "1PAY.SYS.DDF01 not available (this is normal on some cards)", fg="yellow"
+        )
+
     click.secho("\n2PAY.SYS.DDF01 (Index of apps for contactless payments)", bold=True)
     try:
         render_app(card, "2PAY.SYS.DDF01", redact)
