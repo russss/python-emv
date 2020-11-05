@@ -170,7 +170,8 @@ This will initiate a transaction on the card."""
 @click.option("--amount", "-a", metavar="AMOUNT", help="amount")
 @click.pass_context
 def cap(ctx, challenge, amount):
-    if "pin" not in ctx.obj:
+    pin = ctx.obj.get("pin", None)
+    if not pin:
         click.secho("PIN is required", fg="red")
         sys.exit(2)
 
@@ -181,7 +182,7 @@ def cap(ctx, challenge, amount):
     card = get_reader(ctx.obj["reader"])
     try:
         click.echo(
-            card.generate_cap_value(ctx.obj["pin"], challenge=challenge, value=amount)
+            card.generate_cap_value(pin, challenge=challenge, value=amount)
         )
     except InvalidPINException:
         click.secho("Invalid PIN", fg="red")
