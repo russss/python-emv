@@ -21,11 +21,11 @@ jobs:
         sudo apt-get install build-essential swig libpcsclite-dev
         python -m pip install --upgrade pip
         pip install -r ./dev-requirements.txt
-        python ./setup.py install
     - name: Lint
       run: |
         black --check ./emv
         flake8 ./emv
     - name: Test with pytest
       run: |
+        python ./setup.py install
         pytest
