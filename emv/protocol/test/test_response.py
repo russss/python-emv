@@ -1,16 +1,13 @@
-# coding=utf-8
-from __future__ import division, absolute_import, print_function, unicode_literals
-from unittest2 import TestCase
+import pytest
 from emv.protocol.response import RAPDU, SuccessResponse, WarningResponse, ErrorResponse
 
 
-class TestRAPDU(TestCase):
-    def test_unmarshal(self):
-        pdu = RAPDU.unmarshal([0x90, 0x00])
-        self.assertIs(type(pdu), SuccessResponse)
+def test_unmarshal():
+    pdu = RAPDU.unmarshal([0x90, 0x00])
+    assert type(pdu) is SuccessResponse
 
-        pdu = RAPDU.unmarshal([0x63, 0xC2])
-        self.assertIs(type(pdu), WarningResponse)
+    pdu = RAPDU.unmarshal([0x63, 0xC2])
+    assert type(pdu) is WarningResponse
 
-        with self.assertRaises(ErrorResponse):
-            RAPDU.unmarshal([0x6A, 0x81])
+    with pytest.raises(ErrorResponse):
+        RAPDU.unmarshal([0x6A, 0x81])
