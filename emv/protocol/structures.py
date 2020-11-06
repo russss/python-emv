@@ -29,10 +29,10 @@ def parse_element(tag, value):
 
 
 class TLV(OrderedDict):
-    """ BER-TLV
-        A serialisation format.
+    """BER-TLV
+    A serialisation format.
 
-        Documented in EMV 4.3 Book 3 Annex B
+    Documented in EMV 4.3 Book 3 Annex B
     """
 
     @classmethod
@@ -92,12 +92,12 @@ class TLV(OrderedDict):
 
 
 class ASRPD(dict):
-    """ Application Selection Registered Proprietary Data list.
+    """Application Selection Registered Proprietary Data list.
 
-        An almost-TLV structure used in the FCI Discretionary Data object.
-        The tags here are fixed-length.
+    An almost-TLV structure used in the FCI Discretionary Data object.
+    The tags here are fixed-length.
 
-        https://www.emvco.com/wp-content/uploads/2017/05/BookB_Entry_Point_Specification_v2_6_20160809023257319.pdf
+    https://www.emvco.com/wp-content/uploads/2017/05/BookB_Entry_Point_Specification_v2_6_20160809023257319.pdf
     """
 
     @classmethod
@@ -130,13 +130,13 @@ class ASRPD(dict):
 
 
 class DOL(OrderedDict):
-    """ Data Object List.
-        This is sent by the card to the terminal to define a structure for
-        future transactions, consisting of an ordered list of data elements and lengths.
+    """Data Object List.
+    This is sent by the card to the terminal to define a structure for
+    future transactions, consisting of an ordered list of data elements and lengths.
 
-        It's essentially a TLV object without the values.
+    It's essentially a TLV object without the values.
 
-        EMV 4.3 Book 3 section 5.4 """
+    EMV 4.3 Book 3 section 5.4"""
 
     @classmethod
     def unmarshal(cls, data):
@@ -172,8 +172,8 @@ class DOL(OrderedDict):
         return tlv
 
     def serialise(self, data):
-        """ Given a dictionary of tag -> value, write this data out
-            according to the DOL. Missing data will be null.
+        """Given a dictionary of tag -> value, write this data out
+        according to the DOL. Missing data will be null.
         """
         output = []
         for tag, length in self.items():
@@ -264,7 +264,7 @@ class CVMList(object):
 
         It doesn't seem to get much interesting use on many of the cards I've seen though.
 
-    EMV 4.3 book 3 section 10.5 """
+    EMV 4.3 book 3 section 10.5"""
 
     def __init__(self):
         self.x = None

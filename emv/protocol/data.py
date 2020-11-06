@@ -18,8 +18,8 @@ DOL_ELEMENTS = {tag for tag, _, parse, _ in ELEMENT_TABLE if parse == Parse.DOL}
 
 
 def is_two_byte(val):
-    """ A tag is at least two bytes long if the least significant
-        5 bits of the first byte are set. """
+    """A tag is at least two bytes long if the least significant
+    5 bits of the first byte are set."""
     return val & 0b00011111 == 0b00011111
 
 
@@ -34,11 +34,11 @@ def is_constructed(val):
 
 
 def read_tag(data):
-    """ Read a variable-length tag from a list of bytes, starting at the
-        first byte. Returns the tag, plus the number of bytes read from
-        the list.
+    """Read a variable-length tag from a list of bytes, starting at the
+    first byte. Returns the tag, plus the number of bytes read from
+    the list.
 
-        EMV 4.3 Book 3 Annex B1
+    EMV 4.3 Book 3 Annex B1
     """
     i = 0
     tag = [data[i]]
@@ -55,10 +55,10 @@ def read_tag(data):
 
 
 def read_length(data):
-    """ Read length from a list of bytes, starting at the first byte.
-        Returns the length, plus the number of bytes read from the list.
+    """Read length from a list of bytes, starting at the first byte.
+    Returns the length, plus the number of bytes read from the list.
 
-        EMV 4.3 Book 3 Annex B2
+    EMV 4.3 Book 3 Annex B2
     """
     i = 0
     length = data[i]

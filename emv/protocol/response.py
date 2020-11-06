@@ -2,9 +2,9 @@ from .structures import TLV
 
 
 class RAPDU(object):
-    """ Response Application Protocol Data Unit
+    """Response Application Protocol Data Unit
 
-        Defined in: EMV 4.3 Book 3 section 6.3.3
+    Defined in: EMV 4.3 Book 3 section 6.3.3
     """
 
     @classmethod

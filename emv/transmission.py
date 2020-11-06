@@ -4,10 +4,10 @@ from .util import format_bytes
 
 
 class TransmissionProtocol(object):
-    """ Transport layer. Only currently supports T0 transport.
+    """Transport layer. Only currently supports T0 transport.
 
-        Defined in: EMV 4.3 Book 1 section 9
-        See also Annex A for examples.
+    Defined in: EMV 4.3 Book 1 section 9
+    See also Annex A for examples.
     """
 
     def __init__(self, connection):
@@ -19,12 +19,12 @@ class TransmissionProtocol(object):
         self.log.info("Connected to reader")
 
     def transmit(self, tx_data):
-        """ Send raw data to the card, and receive the reply.
+        """Send raw data to the card, and receive the reply.
 
-            tx_data should be a list of bytes.
+        tx_data should be a list of bytes.
 
-            Returns a tuple of (data, sw1, sw2) where sw1 and sw2
-            are the protocol status bytes.
+        Returns a tuple of (data, sw1, sw2) where sw1 and sw2
+        are the protocol status bytes.
         """
         self.log.debug("Tx: %s", format_bytes(tx_data))
         data, sw1, sw2 = self.connection.transmit(tx_data)
@@ -32,9 +32,9 @@ class TransmissionProtocol(object):
         return data, sw1, sw2
 
     def exchange(self, capdu):
-        """ Send a command to the card and return the response.
+        """Send a command to the card and return the response.
 
-            Accepts a CAPDU object and returns a RAPDU.
+        Accepts a CAPDU object and returns a RAPDU.
         """
         send_data = capdu.marshal()
         data, sw1, sw2 = self.transmit(send_data)

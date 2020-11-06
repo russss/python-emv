@@ -37,8 +37,8 @@ class Card(object):
             return self._list_applications_static_aid()
 
     def _list_applications_static_aid(self):
-        """ Try to find applications by trying to select a static application ID.
-            This is an older method of app discovery which is still used by some cards.
+        """Try to find applications by trying to select a static application ID.
+        This is an older method of app discovery which is still used by some cards.
         """
         STATIC_AIDS = [
             [0xA0, 0x00, 0x00, 0x00, 0x25, 0x01],  # Amex
@@ -68,10 +68,10 @@ class Card(object):
         return apps
 
     def _list_applications_sfi(self):
-        """ List applications on the card using the SFI method.
+        """List applications on the card using the SFI method.
 
-            This fetches the SFI (short file identifier) from the PSE (Payment System Environment)
-            file, and uses it to locate all the apps on the card.
+        This fetches the SFI (short file identifier) from the PSE (Payment System Environment)
+        file, and uses it to locate all the apps on the card.
         """
         pse = self.get_pse()
         sfi = pse.data[Tag.FCI][Tag.FCI_PROP][Tag.SFI][0]

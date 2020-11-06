@@ -26,11 +26,11 @@ GAC_RESPONSE_DOL = DOL(
 
 
 def get_arqc_req(app_data, value=None, challenge=None):
-    """ Generate the data to send with the generate application cryptogram request.
-        This data is in the format requested by the card in the CDOL1 field of the
-        application data.
+    """Generate the data to send with the generate application cryptogram request.
+    This data is in the format requested by the card in the CDOL1 field of the
+    application data.
 
-        This is the algorithm that barclays_pinsentry.c uses.
+    This is the algorithm that barclays_pinsentry.c uses.
     """
     if Tag.CDOL1 not in app_data:
         raise CAPError("Application data doesn't include CDOL1 field: %r" % app_data)
@@ -57,12 +57,12 @@ def get_arqc_req(app_data, value=None, challenge=None):
 
 
 def get_cap_value(response, ipb, psn):
-    """ Generate a CAP value from the ARQC response.
+    """Generate a CAP value from the ARQC response.
 
-        The ARQC response is traditionally a data structure returned to the terminal by the
-        card during a payment transaction. CAP (mis)uses it to generate an 8-digit one-time
-        code. This is done by bitwise masking the values in this structure with the Issuer
-        Proprietary Bitmap (IPB) provided by the card in the Application Data structure.
+    The ARQC response is traditionally a data structure returned to the terminal by the
+    card during a payment transaction. CAP (mis)uses it to generate an 8-digit one-time
+    code. This is done by bitwise masking the values in this structure with the Issuer
+    Proprietary Bitmap (IPB) provided by the card in the Application Data structure.
     """
 
     if Tag.RMTF1 in response.data:

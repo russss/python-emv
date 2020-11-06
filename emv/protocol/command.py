@@ -9,11 +9,11 @@ def assert_valid_byte(val):
 
 
 class CAPDU(object):
-    """ Command APDU.
+    """Command APDU.
 
-        Defined in: EMV 4.3 Book 1 sections:
-            - 9.4.1
-            - 11.1
+    Defined in: EMV 4.3 Book 1 sections:
+        - 9.4.1
+        - 11.1
     """
 
     # Map the class name of the command to the CLA,INS bytes.
@@ -79,9 +79,9 @@ class CAPDU(object):
 
 
 class SelectCommand(CAPDU):
-    """ Select an application or file on the card.
+    """Select an application or file on the card.
 
-        Defined in: EMV 4.3 Book 1 section 11.3
+    Defined in: EMV 4.3 Book 1 section 11.3
     """
 
     name = "Select"
@@ -116,9 +116,9 @@ class SelectCommand(CAPDU):
 
 
 class ReadCommand(CAPDU):
-    """ Read a record from an application or file.
+    """Read a record from an application or file.
 
-        Defined in: EMV 4.3 Book 1 section 11.2
+    Defined in: EMV 4.3 Book 1 section 11.2
     """
 
     name = "Read"
@@ -140,9 +140,9 @@ class ReadCommand(CAPDU):
 
 
 class GetDataCommand(CAPDU):
-    """ Get miscellaneous data
+    """Get miscellaneous data
 
-        Defined in: EMV 4.3 Book 3 section 6.5.7
+    Defined in: EMV 4.3 Book 3 section 6.5.7
     """
 
     name = "Get Data"
@@ -161,9 +161,9 @@ class GetDataCommand(CAPDU):
 
 
 class VerifyCommand(CAPDU):
-    """ Verify the PIN.
+    """Verify the PIN.
 
-        Defined in: EMV 4.3 Book 3 section 6.5.12
+    Defined in: EMV 4.3 Book 3 section 6.5.12
     """
 
     name = "Verify"

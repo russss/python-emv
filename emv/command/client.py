@@ -187,9 +187,7 @@ def cap(ctx, challenge, amount):
 
     card = get_reader(ctx.obj["reader"])
     try:
-        click.echo(
-            card.generate_cap_value(pin, challenge=challenge, value=amount)
-        )
+        click.echo(card.generate_cap_value(pin, challenge=challenge, value=amount))
     except InvalidPINException:
         click.secho("Invalid PIN", fg="red")
         sys.exit(1)
