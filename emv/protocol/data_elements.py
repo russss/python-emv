@@ -166,7 +166,7 @@ ELEMENT_TABLE = [
     ((0x9F, 0x4D), "Log Entry", Parse.BYTES, None),
     ((0x9F, 0x4E), "Merchant Name and Location", Parse.BYTES, None),
     ((0x9F, 0x4F), "Log Format", Parse.BYTES, None),
-    ((0x9F, 0x55), "Issuer Authentication Flags", Parse.BYTES, None),
+    ((0x9F, 0x55), "Issuer Authentication Flags", Parse.BYTES, "IAF"),
     ((0x9F, 0x56), "Issuer Proprietary Bitmap", Parse.BYTES, "IPB"),
     (
         (0x9F, 0x5C),

@@ -184,7 +184,7 @@ class Card(object):
         psn = None
 
         # If the third bit of Issuer Authentication Flags is set then use the PAN Sequence Number
-        if app_data[(0x9F, 0x55)][0] & 0x40:
+        if Tag.IAF in app_data and app_data[Tag.IAF][0] & 0x40:
             psn = app_data[Tag.PAN_SN]
 
         return get_cap_value(resp, app_data[Tag.IPB], psn)
