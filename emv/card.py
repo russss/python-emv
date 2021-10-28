@@ -141,7 +141,7 @@ class Card(object):
             end_rec = afl[i + 2]
             # dar = afl[i + 3]
             for i in range(start_rec, end_rec + 1):
-                res = self.tp.exchange(ReadCommand(start_rec, sfi))
+                res = self.tp.exchange(ReadCommand(i, sfi))
                 data.update(res.data[Tag.RECORD])
         return data
 
