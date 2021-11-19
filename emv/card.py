@@ -10,7 +10,7 @@ from .protocol.command import (
     GetProcessingOptions,
     VerifyCommand,
 )
-from .exc import InvalidPINException, MissingAppException
+from .exc import InvalidPINException, MissingAppException, EMVProtocolError
 from .util import decode_int
 from .cap import get_arqc_req, get_cap_value
 
@@ -173,6 +173,16 @@ class Card(object):
         # This includes the CDOL data structure which dictates the format
         # of the data passed to the Get Application Cryptogram function.
         app_data = self.get_application_data(opts["AFL"])
+
+        # In some cases the IPB may not be present. EMVCAP uses the IPB:
+        # 0000FFFFFF0000000000000000000020B938
+        # for VISA cards which don't provide their own, but relies on a hard-coded
+        # list of app names to work out which cards are VISA.
+        #
+        # It appears that Belgian cards use their own silliness.
+        # https://github.com/zoobab/EMVCAP/blob/master/EMV-CAP#L512
+        if Tag.IPB not in app_data:
+            raise EMVProtocolError("Issuer Proprietary Bitmap not found in application file")
 
         self.verify_pin(pin)
 

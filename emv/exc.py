@@ -1,10 +1,14 @@
+class EMVProtocolError(Exception):
+    pass
+
+
 class InvalidPINException(Exception):
     pass
 
 
-class MissingAppException(Exception):
+class MissingAppException(EMVProtocolError):
     pass
 
 
-class CAPError(Exception):
+class CAPError(EMVProtocolError):
     pass
