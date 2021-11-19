@@ -11,7 +11,7 @@ class TransmissionProtocol(object):
     """
 
     def __init__(self, connection):
-        """ Connection should be a pyscard connection. """
+        """Connection should be a pyscard connection."""
         self.log = logging.getLogger(__name__)
         self.connection = connection
         self.connection.connect(connection.T0_protocol)

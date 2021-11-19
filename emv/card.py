@@ -16,21 +16,21 @@ from .cap import get_arqc_req, get_cap_value
 
 
 class Card(object):
-    """ High-level card manipulation API """
+    """High-level card manipulation API"""
 
     def __init__(self, connection):
         self.tp = TransmissionProtocol(connection)
 
     def get_mf(self):
-        """ Get the master file (MF). """
+        """Get the master file (MF)."""
         return self.tp.exchange(SelectCommand(file_identifier=[0x3F, 0x00]))
 
     def get_pse(self):
-        """ Get the Payment System Environment (PSE) file """
+        """Get the Payment System Environment (PSE) file"""
         return self.tp.exchange(SelectCommand("1PAY.SYS.DDF01"))
 
     def list_applications(self):
-        """ List applications on the card """
+        """List applications on the card"""
         try:
             return self._list_applications_sfi()
         except ErrorResponse:
@@ -146,7 +146,7 @@ class Card(object):
         return data
 
     def verify_pin(self, pin):
-        """ Verify the PIN, raising an exception if it fails."""
+        """Verify the PIN, raising an exception if it fails."""
         res = self.tp.exchange(VerifyCommand(pin))
         if type(res) == WarningResponse:
             raise InvalidPINException(str(res))
@@ -154,7 +154,7 @@ class Card(object):
         return res
 
     def generate_cap_value(self, pin, challenge=None, value=None):
-        """ Perform a transaction to generate the EMV CAP (Pinsentry) value. """
+        """Perform a transaction to generate the EMV CAP (Pinsentry) value."""
         apps = self.list_applications()
 
         if len(apps) == 0:
@@ -182,7 +182,9 @@ class Card(object):
         # It appears that Belgian cards use their own silliness.
         # https://github.com/zoobab/EMVCAP/blob/master/EMV-CAP#L512
         if Tag.IPB not in app_data:
-            raise EMVProtocolError("Issuer Proprietary Bitmap not found in application file")
+            raise EMVProtocolError(
+                "Issuer Proprietary Bitmap not found in application file"
+            )
 
         self.verify_pin(pin)
 

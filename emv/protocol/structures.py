@@ -140,7 +140,7 @@ class DOL(OrderedDict):
 
     @classmethod
     def unmarshal(cls, data):
-        """ Construct a DOL object from the binary representation (as a list of bytes) """
+        """Construct a DOL object from the binary representation (as a list of bytes)"""
         dol = cls()
         i = 0
         while i < len(data):
@@ -152,11 +152,11 @@ class DOL(OrderedDict):
         return dol
 
     def size(self):
-        """ Total size of the resulting structure in bytes. """
+        """Total size of the resulting structure in bytes."""
         return sum(self.values())
 
     def unserialise(self, data):
-        """ Parse an input stream of bytes and return a TLV object. """
+        """Parse an input stream of bytes and return a TLV object."""
         if self.size() != len(data):
             raise Exception(
                 "Incorrect input size (expecting %s bytes, got %s)"
@@ -190,7 +190,7 @@ class DOL(OrderedDict):
 
 
 class TagList(list):
-    """ A list of tags. """
+    """A list of tags."""
 
     @classmethod
     def unmarshal(cls, data):
@@ -204,7 +204,7 @@ class TagList(list):
 
 
 class CVMRule(object):
-    """ EMV 4.3 book 3 appendix C3 """
+    """EMV 4.3 book 3 appendix C3"""
 
     RULES = {
         # 0b00000000: "Fail CVM processing",

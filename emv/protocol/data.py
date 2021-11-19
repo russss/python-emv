@@ -24,12 +24,12 @@ def is_two_byte(val):
 
 
 def is_continuation(val):
-    """ Any subsequent byte is a continuation byte if the MSB is set. """
+    """Any subsequent byte is a continuation byte if the MSB is set."""
     return val & 0b10000000 == 0b10000000
 
 
 def is_constructed(val):
-    """ Check if a tag represents a "constructed" value, i.e. another TLV """
+    """Check if a tag represents a "constructed" value, i.e. another TLV"""
     return val & 0b00100000 == 0b00100000
 
 
@@ -74,7 +74,7 @@ def read_length(data):
 
 @total_ordering
 class Tag(object):
-    """ Represents a data tag. Provides ordering and pretty rendering."""
+    """Represents a data tag. Provides ordering and pretty rendering."""
 
     def __init__(self, value):
         if type(value) in (list, tuple) and len(value) == 1:

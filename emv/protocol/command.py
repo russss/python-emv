@@ -188,7 +188,7 @@ class VerifyCommand(CAPDU):
 
 
 class GenerateApplicationCryptogramCommand(CAPDU):
-    """ Defined in: EMV 4.3 Book 3 section 6.5.5 """
+    """Defined in: EMV 4.3 Book 3 section 6.5.5"""
 
     name = "Generate Application Cryptogram"
 
@@ -211,7 +211,7 @@ class GenerateApplicationCryptogramCommand(CAPDU):
 
 
 class GetProcessingOptions(CAPDU):
-    """ Defined in: EMV 4.3 Book 3 section 6.5.8 """
+    """Defined in: EMV 4.3 Book 3 section 6.5.8"""
 
     name = "Get Processing Opts"
 
