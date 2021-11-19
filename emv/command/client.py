@@ -137,6 +137,10 @@ def info(ctx):
         click.secho(
             "1PAY.SYS.DDF01 not available (this is normal on some cards)", fg="yellow"
         )
+    except Exception as e:
+        click.secho(
+            "Error reading 1PAY.SYS.DDF01 (may be normal): " + str(e), fg="red"
+        )
 
     click.secho("\n2PAY.SYS.DDF01 (Index of apps for contactless payments)", bold=True)
     try:
@@ -144,6 +148,10 @@ def info(ctx):
     except MissingAppException:
         click.secho(
             "2PAY.SYS.DDF01 not available (this is normal on some cards)", fg="yellow"
+        )
+    except Exception as e:
+        click.secho(
+            "Error reading 2PAY.SYS.DDF01 (may be normal): " + str(e), fg="red"
         )
 
     for app in apps:
