@@ -33,9 +33,9 @@ If all goes well, you should see some data about your card.
 Warning
 -------
 
-Although this tool has been relatively well tested, it's possible to block
-or even damage your card, as well as get in trouble with your card issuer.
-Please make sure you understand the risks.
+Although this tool has been relatively well tested, it's technically possible
+to block or even damage your card, as well as get in trouble with your card
+issuer, using this tool. Please make sure you understand the risks.
 
 Commands marked in the `--help` output with [!] will initiate a transaction
 on the card, resulting in a permanent change to the card's internal state
