@@ -24,6 +24,30 @@ GAC_RESPONSE_DOL = DOL(
     ]
 )
 
+# A static Issuer Proprietary Bitmap which is apparently the default for VISA cards.
+# Retrieved from the EMVCAP code:
+# https://github.com/zoobab/EMVCAP/blob/0e4877c30972475249e6a2b0253068bfda9e5cf3/EMV-CAP#L519
+VISA_STATIC_IPB = [
+    0x00,
+    0x00,
+    0xFF,
+    0xFF,
+    0xFF,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x00,
+    0x20,
+    0xB9,
+    0x38,
+]
+
 
 def get_arqc_req(app_data, value=None, challenge=None):
     """Generate the data to send with the generate application cryptogram request.

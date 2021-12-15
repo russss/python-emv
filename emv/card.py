@@ -1,4 +1,4 @@
-from __future__ import division, absolute_import, print_function, unicode_literals
+import logging
 from .transmission import TransmissionProtocol
 from .protocol.structures import TLV
 from .protocol.data import Tag
@@ -10,9 +10,11 @@ from .protocol.command import (
     GetProcessingOptions,
     VerifyCommand,
 )
-from .exc import InvalidPINException, MissingAppException, EMVProtocolError
+from .exc import InvalidPINException, MissingAppException
 from .util import decode_int
-from .cap import get_arqc_req, get_cap_value
+from .cap import get_arqc_req, get_cap_value, VISA_STATIC_IPB
+
+log = logging.getLogger(__name__)
 
 
 class Card(object):
@@ -174,18 +176,6 @@ class Card(object):
         # of the data passed to the Get Application Cryptogram function.
         app_data = self.get_application_data(opts["AFL"])
 
-        # In some cases the IPB may not be present. EMVCAP uses the IPB:
-        # 0000FFFFFF0000000000000000000020B938
-        # for VISA cards which don't provide their own, but relies on a hard-coded
-        # list of app names to work out which cards are VISA.
-        #
-        # It appears that Belgian cards use their own silliness.
-        # https://github.com/zoobab/EMVCAP/blob/master/EMV-CAP#L512
-        if Tag.IPB not in app_data:
-            raise EMVProtocolError(
-                "Issuer Proprietary Bitmap not found in application file"
-            )
-
         self.verify_pin(pin)
 
         resp = self.tp.exchange(
@@ -199,4 +189,17 @@ class Card(object):
         if Tag.IAF in app_data and app_data[Tag.IAF][0] & 0x40:
             psn = app_data[Tag.PAN_SN]
 
-        return get_cap_value(resp, app_data[Tag.IPB], psn)
+        # Fetch the Issuer Proprietary Bitmap. In most UK cards this is provided in the application data file.
+        #
+        # In some cases the IPB may not be present. This static IPB is from the EMVCAP code.
+        #
+        # It appears that Belgian cards use their own silliness.
+        # https://github.com/zoobab/EMVCAP/blob/master/EMV-CAP#L512
+        if Tag.IPB in app_data:
+            ipb = app_data[Tag.IPB]
+        else:
+            log.warn("Issuer Proprietary Bitmap not found on card - using static VISA IPB. "
+                     "The resulting code may not work!")
+            ipb = VISA_STATIC_IPB
+
+        return get_cap_value(resp, ipb, psn)
