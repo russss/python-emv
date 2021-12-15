@@ -198,8 +198,10 @@ class Card(object):
         if Tag.IPB in app_data:
             ipb = app_data[Tag.IPB]
         else:
-            log.warn("Issuer Proprietary Bitmap not found on card - using static VISA IPB. "
-                     "The resulting code may not work!")
+            log.warn(
+                "Issuer Proprietary Bitmap not found on card - using static VISA IPB. "
+                "The resulting code may not work!"
+            )
             ipb = VISA_STATIC_IPB
 
         return get_cap_value(resp, ipb, psn)

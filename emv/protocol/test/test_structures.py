@@ -96,7 +96,9 @@ def test_dol():
     assert dol.size() == 29
 
     # This DOL has a repeated 0x9A entry, for some reason. Apparently this is allowed.
-    data = unformat_bytes("9F 66 04 9F 02 06 9F 03 06 9F 1A 02 95 05 5F 2A 02 9A 03 9C 01 9F 37 04 9A 03")
+    data = unformat_bytes(
+        "9F 66 04 9F 02 06 9F 03 06 9F 1A 02 95 05 5F 2A 02 9A 03 9C 01 9F 37 04 9A 03"
+    )
     dol = DOL.unmarshal(data)
 
     assert len([t for t in dol if t[0] == 0x9A]) == 2
