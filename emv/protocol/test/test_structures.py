@@ -92,10 +92,14 @@ dol_data = unformat_bytes(
 def test_dol():
     dol = DOL.unmarshal(dol_data)
     assert 0x9A in dol
-    assert dol[0x9A] == 3
     assert (0x9F, 0x37) in dol
-    assert dol[(0x9F, 0x37)] == 4
     assert dol.size() == 29
+
+    # This DOL has a repeated 0x9A entry, for some reason. Apparently this is allowed.
+    data = unformat_bytes("9F 66 04 9F 02 06 9F 03 06 9F 1A 02 95 05 5F 2A 02 9A 03 9C 01 9F 37 04 9A 03")
+    dol = DOL.unmarshal(data)
+
+    assert len([t for t in dol if t[0] == 0x9A]) == 2
 
 
 def test_serialise():
@@ -166,4 +170,4 @@ def test_taglist():
 
 def test_cvmlist():
     data = unformat_bytes("00 00 00 00 00 00 00 00 41 03 1E 03 02 03 1F 03")
-    print(CVMList.unmarshal(data))
+    CVMList.unmarshal(data)

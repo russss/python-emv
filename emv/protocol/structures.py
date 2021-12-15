@@ -129,7 +129,7 @@ class ASRPD(dict):
         return ret
 
 
-class DOL(OrderedDict):
+class DOL(list):
     """Data Object List.
     This is sent by the card to the terminal to define a structure for
     future transactions, consisting of an ordered list of data elements and lengths.
@@ -148,12 +148,12 @@ class DOL(OrderedDict):
             i += tag_len
             length = data[i]
             i += 1
-            dol[Tag(tag)] = length
+            dol.append((Tag(tag), length))
         return dol
 
     def size(self):
         """Total size of the resulting structure in bytes."""
-        return sum(self.values())
+        return sum([val[1] for val in self])
 
     def unserialise(self, data):
         """Parse an input stream of bytes and return a TLV object."""
@@ -165,18 +165,24 @@ class DOL(OrderedDict):
 
         tlv = TLV()
         i = 0
-        for tag, length in self.items():
+        for tag, length in self:
             tlv[tag] = data[i : i + length]
             i += length
 
         return tlv
+
+    def __contains__(self, val):
+        for v in self:
+            if v[0] == val:
+                return True
+        return False
 
     def serialise(self, data):
         """Given a dictionary of tag -> value, write this data out
         according to the DOL. Missing data will be null.
         """
         output = []
-        for tag, length in self.items():
+        for tag, length in self:
             value = data.get(tag, [0x0] * length)
             if len(value) < length:
                 # If the length is shorter than required, left-pad it.
