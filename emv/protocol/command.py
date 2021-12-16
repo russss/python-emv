@@ -221,5 +221,6 @@ class GetProcessingOptions(CAPDU):
         if pdol is None:
             self.data = [0x83, 0x00]
         else:
-            self.data = pdol
+            self.data = [0x83, len(pdol)]
+            self.data.extend(pdol)
         self.le = 0x00
