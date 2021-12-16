@@ -30,7 +30,6 @@ setup(
     python_requires=">=3.4",
     packages=["emv", "emv.protocol", "emv.command"],
     install_requires=[
-        "enum-compat==0.0.3",
         "argparse==1.4.0",
         "pyscard==2.0.0",
         "pycountry==20.7.3",
