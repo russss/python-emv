@@ -27,9 +27,9 @@ class Card(object):
         """Get the master file (MF)."""
         return self.tp.exchange(SelectCommand(file_identifier=[0x3F, 0x00]))
 
-    def get_pse(self):
+    def get_pse(self, pse="1PAY.SYS.DDF01"):
         """Get the Payment System Environment (PSE) file"""
-        return self.tp.exchange(SelectCommand("1PAY.SYS.DDF01"))
+        return self.tp.exchange(SelectCommand(pse))
 
     def list_applications(self):
         """List applications on the card"""
@@ -125,8 +125,8 @@ class Card(object):
 
         return data
 
-    def get_processing_options(self):
-        res = self.tp.exchange(GetProcessingOptions())
+    def get_processing_options(self, pdol=None):
+        res = self.tp.exchange(GetProcessingOptions(pdol))
         if Tag.RMTF1 in res.data:
             # Response template format 1
             return {"AIP": res.data[Tag.RMTF1][:2], "AFL": res.data[Tag.RMTF1][2:]}
