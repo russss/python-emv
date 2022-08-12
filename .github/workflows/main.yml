@@ -23,7 +23,7 @@ jobs:
         pip install -r ./dev-requirements.txt
     - name: Lint
       run: |
-        black --check ./emv
+        black --check --diff ./emv
         flake8 ./emv
     - name: Test with pytest
       run: |
