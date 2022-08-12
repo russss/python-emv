@@ -121,6 +121,7 @@ def render_app(card, df, redact):
                     as_table(rec[Tag.RECORD], "File: %s,%s" % (i, j), redact=redact)
                 )
 
+
 @cli.command(help="Dump card information.")
 @click.pass_context
 def info(ctx):
@@ -251,5 +252,3 @@ def appdata(ctx, app_index):
 
     app_data = card.get_application_data(opts["AFL"])
     click.echo(as_table(app_data, title="Application Data", redact=redact))
-
-    
