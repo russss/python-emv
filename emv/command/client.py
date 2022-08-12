@@ -251,3 +251,5 @@ def appdata(ctx, app_index):
 
     app_data = card.get_application_data(opts["AFL"])
     click.echo(as_table(app_data, title="Application Data", redact=redact))
+
+    
