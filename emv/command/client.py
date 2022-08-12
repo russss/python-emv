@@ -111,15 +111,15 @@ def render_app(card, df, redact):
         as_table(data[Tag.FCI][Tag.FCI_PROP], "FCI Proprietary Data", redact=redact)
     )
     for i in range(1, 31):
-            for j in range(1, 16):
-                try:
-                    rec = card.read_record(j, sfi=i).data
-                except ErrorResponse:
-                    continue
-                if Tag.RECORD in rec:
-                    click.echo(
-                        as_table(rec[Tag.RECORD], "File: %s,%s" % (i, j), redact=redact)
-                    )
+        for j in range(1, 16):
+            try:
+                rec = card.read_record(j, sfi=i).data
+            except ErrorResponse:
+                continue
+            if Tag.RECORD in rec:
+                click.echo(
+                    as_table(rec[Tag.RECORD], "File: %s,%s" % (i, j), redact=redact)
+                )
 
 @cli.command(help="Dump card information.")
 @click.pass_context
