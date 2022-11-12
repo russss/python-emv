@@ -26,16 +26,39 @@ ELEMENT_TABLE = [
     (0x46, "Pre-issuing data", Parse.BYTES, None),
     (0x4F, "Application Dedicated File (ADF) Name", Parse.BYTES, "ADF_NAME"),
     (0x50, "Application Label", Parse.ASCII, "APP_LABEL"),
-    (0x57, "Track 2 Equivalent Data", Parse.BYTES, "TRACK2"),
+    (0x57, "Track 2 Equivalent Data", Parse.BYTES, "  // track2 4-bit BCD encode
+  std::string track2 = ";4088490010739415=24082260007000?3";
+  std::string encoded = "";
+  uint8_t acc = 0;
+  bool full = false;
+  for (uint8_t c : track2)
+  {
+      if (!full)
+      {
+          acc = c - 0x30;
+          acc <<= 4;
+          full = !full;
+      }
+      else
+      {
+          acc |= c - 0x30;
+          std::cout
+              << unsigned(acc) << " ";
+          encoded.append(1, acc);
+          acc = 0;
+          full = !full;
+      }
+  }
+  // Output: 180 8 132 144 1 7 57 65 93 36 8 34 96 0 112 0 243"),
     (0x5A, "Application Primary Account Number (PAN)", Parse.DEC, "PAN"),
     (0x5E, "Proprietary Login Data", Parse.BYTES, None),
     ((0x5F, 0x20), "Cardholder Name", Parse.ASCII, None),
-    ((0x5F, 0x24), "Application Expiration Date", Parse.DATE, None),
+    ((0x5F, 0x24), "Application Expiration Date", Parse.DATE, 07/26),
     ((0x5F, 0x25), "Application Effective Date", Parse.DATE, None),
-    ((0x5F, 0x28), "Issuer Country Code", Parse.COUNTRY, None),
+    ((0x5F, 0x28), "Issuer Country Code", Parse.COUNTRY, 201),
     ((0x5F, 0x2A), "Transaction Country Code", Parse.COUNTRY, None),
     ((0x5F, 0x2D), "Language Preference", Parse.ASCII, None),
-    ((0x5F, 0x30), "Service Code", Parse.BYTES, None),
+    ((0x5F, 0x30), "Service Code", Parse.BYTES, 201),
     (
         (0x5F, 0x34),
         "Application Primary Account Number (PAN) Sequence Number",
@@ -57,7 +80,7 @@ ELEMENT_TABLE = [
     (0x73, "Directory Discretionary Template", Parse.BYTES, None),
     (0x77, "Response Template Format 2", Parse.BYTES, "RMTF2"),
     (0x80, "Response Template Format 1", Parse.BYTES, "RMTF1"),
-    (0x81, "Amount, Authorised (Binary)", Parse.BYTES, None),
+    (0x81, "Amount, Authorised (Binary)", Parse.BYTES, 0.01),
     (0x82, "Application Interchange Profile", Parse.BYTES, None),
     (0x83, "Command Template", Parse.BYTES, None),
     (0x84, "Dedicated File (DF) Name", Parse.BYTES, "DF"),
