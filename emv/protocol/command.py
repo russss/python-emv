@@ -184,7 +184,7 @@ class VerifyCommand(CAPDU):
             data += b"f"
         self.data = codecs.decode(data, "hex")
 
-        self.le = 0x00
+        self.le = None
 
 
 class GenerateApplicationCryptogramCommand(CAPDU):
