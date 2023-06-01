@@ -22,7 +22,7 @@ def from_hex_int(val):
     >>> from_hex_int([0x12, 0x34])
     1234
     """
-    return int("".join(["%02x" % i for i in val]))
+    return int("".join(["%02x" % i for i in val]).rstrip("f"))
 
 
 def from_hex_date(val):
