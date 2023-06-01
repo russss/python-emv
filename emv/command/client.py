@@ -252,3 +252,24 @@ def appdata(ctx, app_index):
 
     app_data = card.get_application_data(opts["AFL"])
     click.echo(as_table(app_data, title="Application Data", redact=redact))
+
+
+@cli.command(
+    help="""[!] Verify PIN.
+This will initiate a transaction on the card."""
+)
+@click.argument("app_index", type=int)
+@click.pass_context
+def verifypin(ctx, app_index):
+    pin = ctx.obj.get("pin", None)
+    if not pin:
+        click.secho("PIN is required", fg="red")
+        sys.exit(2)
+
+    card = get_reader(ctx.obj["reader"])
+    apps = card.list_applications()
+    app = apps[app_index]
+    card.select_application(app[Tag.ADF_NAME])
+    card.get_processing_options()
+    card.verify_pin(pin)
+    click.echo("PIN Verified")
